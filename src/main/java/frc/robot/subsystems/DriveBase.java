@@ -49,6 +49,20 @@ public abstract class DriveBase extends SubsystemBase {
         this.followMotors();
     }
     
+        /**
+     * Motor control method for arcade drive with exponential.
+     * @param forwardVal The forward value
+     * @param rotateVal The rotate value
+     * @param squareInputs Square the inputs?
+     */
+    public final void arcadeDriveExpo(double forwardVal, double rotateVal) {
+        forwardVal = Config.FORWARD_EXPO / 1000000 * Math.pow(forwardVal, 3) + (1 - Config.FORWARD_EXPO / 100) * forwardVal ;
+        rotateVal = Config.ROTATION_EXPO / 1000000 * Math.pow(rotateVal, 3) + (1 - Config.ROTATION_EXPO / 100) * rotateVal ;
+        this.setDriveMode(DriveMode.OpenLoopVoltage);
+        differentialDrive.arcadeDrive(forwardVal, rotateVal*Config.DRIVETRAIN_DEFAULT_MAX_SPEED.get(), false);
+        this.followMotors();
+    }
+
     /**
      * Motor control method for tank drive.
      * @param leftVal The left value

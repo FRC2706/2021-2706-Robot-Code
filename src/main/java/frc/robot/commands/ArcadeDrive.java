@@ -58,8 +58,8 @@ public class ArcadeDrive extends CommandBase {
   @Override
   public void execute() {
     // Pass values to drive base to make the robot move
-    this.driveBase.arcadeDrive(forwardVal.get(), rotateVal.get(), squareInputs);
-
+    // this.driveBase.arcadeDrive(forwardVal.get(), rotateVal.get(), squareInputs);
+    this.driveBase.arcadeDriveExpo(forwardVal.get(), rotateVal.get());
   }
 
   // Called once the command ends or is interrupted.

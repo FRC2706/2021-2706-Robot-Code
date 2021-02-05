@@ -19,7 +19,7 @@ public class ArmSubsystem extends ConditionalSubsystemBase {
 
     private static final int acceptableError = 50;
 
-    private static ArmSubsystem INSTANCE = new ArmSubsystem();
+    private static ArmSubsystem INSTANCE = new ArmSubsystem(); // BC
 
 
     private int currentPosition = REVERSE_LIMIT_TICKS;
