@@ -83,7 +83,7 @@ public class Config {
     public static int INTAKE_MOTOR = robotSpecific(6, 6, -1, -1, -1);
     public static int SHOOTER_MOTOR = robotSpecific(5, 5, -1, -1, 16); //protobot is 16
     public static int CLIMBER_TALON = robotSpecific(10, 10, -1, -1, 16);
-    public static int AGITATOR_MOTOR = robotSpecific(9, 9);
+    public static int AGITATOR_MOTOR = robotSpecific(9, 9, -1, -1); // BC for robot id 3 
 
     // Current limiter Constants
     public static int PEAK_CURRENT_AMPS = 80;           //Peak current threshold to trigger the current limit
@@ -96,9 +96,9 @@ public class Config {
     
     public static int ANALOG_SELECTOR_ONE = robotSpecific(0, 0, -1, -1, -1, 0);
     
-    public static int ARM_TALON = robotSpecific(7, 7, 12);
+    public static int ARM_TALON = robotSpecific(7, 7, 12,-1); // BC
 
-    public static int FEEDER_SUBSYSTEM_TALON = robotSpecific(8, 8);
+    public static int FEEDER_SUBSYSTEM_TALON = robotSpecific(8, 8, -1, -1); // BC
     
     public static Double DRIVE_OPEN_LOOP_DEADBAND = 0.04;
     
@@ -155,7 +155,7 @@ public class Config {
 
     // Exponential Value chosen for Drivers
     public static int FORWARD_EXPO = 50;
-    public static int ROTATION_EXPO = 100;
+    public static int ROTATION_EXPO = 90;
 
     public static final FluidConstant<Integer> RPM = new FluidConstant<>("Shooter RPM", 1700)
             .registerToTable(Config.constantsTable);
@@ -182,7 +182,7 @@ public class Config {
 
     public static int shooterAnalogSensor = robotSpecific(8, 9);
 
-    public static FluidConstant<Double> DRIVETRAIN_DEFAULT_MAX_SPEED = new FluidConstant<>("DrivetrainDefaultMaxSpeed", 0.7)  // BC
+    public static FluidConstant<Double> DRIVETRAIN_DEFAULT_MAX_SPEED = new FluidConstant<>("DrivetrainDefaultMaxSpeed", 0.6)  // BC
             .registerToTable(Config.constantsTable);
 
     public static FluidConstant<Double> FEEDERSUBSYSTEM_INCREMENT_TICKS = new FluidConstant<>("IncrementTicks", 1200.0)
