@@ -93,7 +93,6 @@ public class DriveBase2020 extends DriveBase {
 
     }
 
-    @Override
     public double getMotorCurrent() {
         //Get motor supply current, send it to shuffleboard, and return it.
         motorCurrent = (leftMaster.getSupplyCurrent() + rightMaster.getSupplyCurrent())/2;
@@ -101,7 +100,6 @@ public class DriveBase2020 extends DriveBase {
         return(motorCurrent); //Returns average motor current draw.
     }
 
-    @Override
     public boolean isMotorLimitActive() {
         //Checks if motor currents are at or above the continuous limit (checks if current limiting is imminent or ongoing)
         //This method does not limit motor current. It monitors current for driver feedback purposes.
@@ -117,6 +115,20 @@ public class DriveBase2020 extends DriveBase {
         return(motorLimitActive);
     }
 
+    /**
+     * Initialize the current DriveBase instance
+     */
+    public static void init() {
+        if (currentInstance == null) {
+            currentInstance = new DriveBase2020();
+        }
+    }
+
+    public static DriveBase2020 getInstance() {
+        init();
+        return currentInstance;
+    }
+    
     @Override
     public void stopMotors() {
         leftMaster.stopMotor();

@@ -207,7 +207,23 @@ public abstract class DriveBase extends SubsystemBase {
     }
     public abstract double getMotorCurrent();
 
-    public abstract boolean isMotorLimitActive();
+    public void resetPose(Pose2d pose) {
 
-    
+    }
+
+    public void tankDriveVelocities(double leftVel, double rightVel, double leftFF, double rightFF) {
+
+    }
+
+    public double[] getMeasuredVelocities() {
+        return new double[1];
+    }
+
+    public double[] getMeasuredMetersPerSecond() {
+        return new double[1];
+    }
+
+    public void setActivePIDSlot(int slotId) {
+        
+    }
 }
