@@ -3,6 +3,7 @@ package frc.robot.commands;
 import frc.robot.config.Config;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -26,6 +27,7 @@ public class VisionAssistedShooter extends CommandBase {
   private final double SHOOTER_WHEEL_RADIUS_IN_CM = 10;
   private final double HALF_OF_GRAVITY = 4.91;
   private final double CONVERSION_NUMBER = 3000;
+  private final int MAX_RPM = 2000;
 
   // values from Vision Network Table
   private double distanceToOuterPort;
@@ -69,12 +71,17 @@ public class VisionAssistedShooter extends CommandBase {
     //NOTE: unit should be meter. If not, need conversion here.
     distanceToOuterPort = visionControlNetTable.distanceToOuterPort.get();
 
-    //todo: to adjuste the distance for the shooter 
+    //todo: to adjuste the distance for the shooter
+    //Check the source location of vision distance to outer port 
     //targetDistance
 
     //Calculate the RPM of the shooter wheel.
-    double targetV  = initVelocity( distanceToOuterPort);
-    targetRPM     = velocityToRPM (targetV);
+    double targetV = initVelocity(distanceToOuterPort);
+    targetRPM = velocityToRPM(targetV);
+
+    SmartDashboard.putNumber("Vision: distance to outer port", distanceToOuterPort);
+    SmartDashboard.putNumber("Target RPM", targetRPM);
+
     
   }
 
@@ -83,9 +90,7 @@ public class VisionAssistedShooter extends CommandBase {
 
     //Set the shooter to the target RPM.
     shooter.setTargetRPM((int) targetRPM);
-
-    //todo: provide feedback to the shuffleboard for Driver Team
-    
+        
   }
 
   @Override
@@ -127,6 +132,10 @@ public class VisionAssistedShooter extends CommandBase {
 double velocityToRPM( double velocity)
  {     
      double rpm = velocity*CONVERSION_NUMBER/(Math.PI*SHOOTER_WHEEL_RADIUS_IN_CM);
+     if(rpm > MAX_RPM){
+      System.out.println("WARNING! Unsafe RPM reached "+rpm);
+      rpm = MAX_RPM;
+     }
      return rpm;
  }
 
