@@ -126,19 +126,21 @@ public class ShooterSubsystem extends SubsystemBase {
         return m_shooter.getOutputCurrent();
     }
 
-    /**
+    /** 
      * Check the actual RPM and compare it with targetRPM to verify that the shooter
      * is up to necessary speed to fire.
      */
+
+     //Need to review
     public boolean isAtTargetRPM() {
         double encoderRPM = m_encoder.getVelocity();
-        return (Math.abs(Config.RPM.get() - encoderRPM) < RPM_TOLERANCE);
+        return (Math.abs(SETPOINT_RPM.get() - encoderRPM) < RPM_TOLERANCE);
     }
 
     @Override
     public void periodic() {
         if (m_shooter == null) {
-            return;
+         return;
         }
         if (SETPOINT_RPM.get() <= 0.0) {
             m_shooter.set(0.0);
@@ -146,7 +148,6 @@ public class ShooterSubsystem extends SubsystemBase {
             m_pidController.setReference(SETPOINT_RPM.get(), ControlType.kVelocity);
         }
 
-        SmartDashboard.putNumber("shooter RPM", m_encoder.getVelocity());
         SmartDashboard.putNumber("shooter RPM", m_encoder.getVelocity());
         SmartDashboard.putNumber("shooter temp", getTemperature());
         SmartDashboard.putNumber("shooter current", getCurrentDraw());
