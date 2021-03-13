@@ -31,7 +31,7 @@ public class VisionAssistedShooter extends CommandBase {
   private VisionCtrlNetTable visionControlNetTable;
 
   //calculated for the shooter
-  double targetDistance = 0;
+  double targetDistance = 0; 
   double targetRPM = 0;
 
 
