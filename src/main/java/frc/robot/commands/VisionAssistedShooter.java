@@ -21,13 +21,15 @@ public class VisionAssistedShooter extends CommandBase {
   private int shooterTime;
   
   //todo: can be configured in config file as well
-  //todo: measure the radius for the shooting wheel
+  //robot dependent measurement
   private final double SHOOTER_ANGLE_IN_DEGREES  = 60.0;
-  private final double TARGET_HEIGHT_IN_METERS = 2.49;
   private final double SHOOTER_WHEEL_RADIUS_IN_CM = 10;
+  private final double DISTANCE_CAMERA_SHOOTER_IN_METERS = 0.27;
+
+  private final double TARGET_HEIGHT_IN_METERS = 2.49;
   private final double HALF_OF_GRAVITY = 4.91;
   private final double CONVERSION_NUMBER = 3000;
-  private final int MAX_RPM = 2000;
+  private final int MAX_RPM = 2500;
 
   // values from Vision Network Table
   private double distanceToOuterPort;
@@ -38,7 +40,6 @@ public class VisionAssistedShooter extends CommandBase {
   //calculated for the shooter
   double targetDistance = 0;
   double targetRPM = 0;
-
 
   /**
    * Creates a new VisionAssistedShooter Command.
@@ -73,16 +74,15 @@ public class VisionAssistedShooter extends CommandBase {
 
     //todo: to adjuste the distance for the shooter
     //Check the source location of vision distance to outer port 
-    //targetDistance
+    distanceToOuterPort += DISTANCE_CAMERA_SHOOTER_IN_METERS;
 
     //Calculate the RPM of the shooter wheel.
     double targetV = initVelocity(distanceToOuterPort);
     targetRPM = velocityToRPM(targetV);
 
-    SmartDashboard.putNumber("Vision: distance to outer port", distanceToOuterPort);
-    SmartDashboard.putNumber("Target RPM", targetRPM);
-
-    
+    SmartDashboard.putNumber("VisionAssistedShooter: Distance to outer port", distanceToOuterPort);
+    SmartDashboard.putNumber("VisionAssistedShooter: Target RPM", targetRPM);
+   
   }
 
   @Override
@@ -123,17 +123,21 @@ public class VisionAssistedShooter extends CommandBase {
      }
 
     return dInitVelocity;
-  
  }
 
- // convert velocity to RPM
- // velocity: unit m/s
- // return: unit revolutions per minute
+ /* 
+  * convert velocity to RPM
+  * velocity: unit m/s
+  * radius: cm
+  * return: unit revolutions per minute
+  * RPM = 60*velocity*100/(2*pi*r)
+  */
+
 double velocityToRPM( double velocity)
  {     
      double rpm = velocity*CONVERSION_NUMBER/(Math.PI*SHOOTER_WHEEL_RADIUS_IN_CM);
      if(rpm > MAX_RPM){
-      System.out.println("WARNING! Unsafe RPM reached "+rpm);
+      System.out.println("WARNING! Unsafe RPM reached "+rpm+" , use MAX+RPM");
       rpm = MAX_RPM;
      }
      return rpm;
