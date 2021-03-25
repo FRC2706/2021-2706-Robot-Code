@@ -61,8 +61,8 @@ public class RamseteCommandRio extends CommandBase {
     private final PIDController m_leftController;
     private final PIDController m_rightController;
     private DifferentialDriveWheelSpeeds m_prevSpeeds;
+    private DifferentialDriveWheelSpeeds m_prevVelocityEncoder;
     private double m_prevAcceleration;
-    private double m_prevTurnRate;
     private double m_totalTimeElapsed = 0;
     private double m_timeBeforeTrajectory = 0;
     private double m_prevTime;
@@ -116,6 +116,8 @@ public class RamseteCommandRio extends CommandBase {
         var initialState = m_trajectory.sample(0);
         m_prevSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(initialState.velocityMetersPerSecond, 0,
                 initialState.curvatureRadPerMeter * initialState.velocityMetersPerSecond));
+        m_prevVelocityEncoder = m_driveSubsystem.getMeasuredMetersPerSecond();
+        m_prevAcceleration = 0;
         m_timer.reset();
         m_timer.start();
 
@@ -152,19 +154,23 @@ public class RamseteCommandRio extends CommandBase {
         double leftFeedforward = m_feedforward.calculate(leftSpeedSetpoint, leftAcceleration);
         double rightFeedforward = m_feedforward.calculate(rightSpeedSetpoint, rightAcceleration);
 
-        double leftVelocityEncoders = m_driveSubsystem.getMeasuredMetersPerSecond().leftMetersPerSecond;
-        double rightVelocityEncoders = m_driveSubsystem.getMeasuredMetersPerSecond().rightMetersPerSecond;
+        DifferentialDriveWheelSpeeds velocityEncoders = m_driveSubsystem.getMeasuredMetersPerSecond();
+        double leftVelocityEncoders = velocityEncoders.leftMetersPerSecond;
+        double rightVelocityEncoders = velocityEncoders.rightMetersPerSecond;
 
         double xAcceleration = m_driveSubsystem.getXAcceleration();
-        double xVelocity = xAcceleration; // <--- DO MATH OR STUFF 2+2=4
-        double angularVelocity = Math.toRadians(m_driveSubsystem.getRawGyro()[2]); // Index 2 has z axis
+        double xDeltaVelocity = (xAcceleration - m_prevAcceleration) * dt;
+        double xVelocity = xDeltaVelocity + m_kinematics.toChassisSpeeds(m_prevVelocityEncoder).vxMetersPerSecond;
+        double angularVelocity = Math.toRadians(m_driveSubsystem.getRawGyro()[2]); // Index 2  has rotation around z axis
+        
         var accelerometerVel = m_kinematics.toWheelSpeeds(new ChassisSpeeds(xVelocity, 0, angularVelocity));
+        
         double leftVelocityAccel = accelerometerVel.leftMetersPerSecond;
-        double rightVelocityAccel = accelerometerVel.rightMetersPerSecond;
+        double rightVelocityAccel = accelerometerVel.rightMetersPerSecond; 
 
-        double leftVelocityFused = leftVelocityEncoders*0.75 + leftVelocityAccel*0.25;
-        double rightVelocityFused = rightVelocityEncoders*0.75 + rightVelocityAccel*0.25;
-
+        double factor = 0.5;
+        double leftVelocityFused = leftVelocityEncoders*factor + leftVelocityAccel*(1-factor);
+        double rightVelocityFused = rightVelocityEncoders*factor + rightVelocityAccel*(1-factor);
 
         double leftOutput = leftFeedforward
               + m_leftController.calculate(leftVelocityFused, leftSpeedSetpoint);
@@ -172,10 +178,13 @@ public class RamseteCommandRio extends CommandBase {
         double rightOutput = rightFeedforward
               + m_rightController.calculate(rightVelocityFused, rightSpeedSetpoint);
 
+        System.out.printf("leftVelAccel=%.2f, rightVelAccel=%.2f, leftVelEnc=%.2f, rightVelEnc=%.2f \n", leftVelocityAccel, rightVelocityAccel, leftVelocityEncoders, rightVelocityEncoders);
         m_driveSubsystem.tankDriveVolts(leftOutput, rightOutput);
 
         m_prevTime = m_totalTimeElapsed;
         m_prevSpeeds = targetWheelSpeeds;
+        m_prevVelocityEncoder = velocityEncoders;
+        m_prevAcceleration = xAcceleration;
 
         // Get measure velocities for logging
         double measuredVelocities[] = m_driveSubsystem.getMeasuredVelocities();

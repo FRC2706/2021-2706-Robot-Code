@@ -37,6 +37,7 @@ import frc.robot.commands.ramseteAuto.DriveToWaypoint;
 import frc.robot.commands.ramseteAuto.PassThroughWaypoint;
 import frc.robot.commands.ramseteAuto.PoseScaled;
 import frc.robot.commands.ramseteAuto.RamseteCommandMerge;
+import frc.robot.commands.ramseteAuto.RamseteCommandRio;
 import frc.robot.commands.ramseteAuto.TranslationScaled;
 import frc.robot.commands.ramseteAuto.VisionPose;
 import frc.robot.commands.ramseteAuto.VisionPose.VisionType;
@@ -174,8 +175,8 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // Testing forced numbers
-        int selectFolder = 2;
-        int selectPath = 2;
+        int selectFolder = 1;
+        int selectPath = 11;
 
         int selectorOne = 0;
 
@@ -352,6 +353,15 @@ public class RobotContainer {
             return new ParallelCommandGroup(ramsete,
                     // new PassThroughWaypoint(ramsete, endPose(trajectory1), VisionPose.VisionType.TPracticeTarget, 8, 0, 0.5),
                     new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose(new Pose2d()))); 
+        } else if (selectorOne == 11) {
+            Trajectory trajectory1 = TrajectoryGenerator.generateTrajectory(List.of(
+            new Pose2d(),
+            new Pose2d(2, 0.6, Rotation2d.fromDegrees(0))),
+            VisionPose.getInstance().getTrajConfig(0, 0, false));
+
+            return new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose(trajectory1.getInitialPose()))
+                .andThen(new RamseteCommandMerge(trajectory1, "AccelTest1"));
+
         }
 
 

@@ -237,7 +237,7 @@ public class Robot extends TimedRobot {
     @Override
     public void testPeriodic() {
 
-
+        // System.out.println(DriveBaseHolder.getInstance().getXAcceleration() + ", gyro: " + DriveBaseHolder.getInstance().getRawGyro()[2]);
 
         CommandScheduler.getInstance().run();
 

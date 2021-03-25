@@ -430,9 +430,9 @@ public class DriveBase2020 extends DriveBase {
     }
     
     @Override 
-     public void tankDriveVolts(double leftVolts, double rightVolts) {
+    public void tankDriveVolts(double leftVolts, double rightVolts) {
         leftMaster.setVoltage(leftVolts);
-        rightMaster.setVoltage(-rightVolts);
+        rightMaster.setVoltage(rightVolts);
         differentialDrive.feed();
     }
 
