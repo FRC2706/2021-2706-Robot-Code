@@ -9,6 +9,7 @@ import java.util.List;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -127,8 +128,8 @@ public class PassThroughWaypoint extends CommandBase {
         Trajectory trajectory;
         try {
           //Get current robot velocities for left and right sides and find the average
-          double[] measuredVelocities = DriveBaseHolder.getInstance().getMeasuredMetersPerSecond();
-          double averageCurrentVelocity = (measuredVelocities[0] + measuredVelocities[1])/2.0;
+          DifferentialDriveWheelSpeeds measuredVelocities = DriveBaseHolder.getInstance().getMeasuredMetersPerSecond();
+          double averageCurrentVelocity = (measuredVelocities.leftMetersPerSecond + measuredVelocities.rightMetersPerSecond)/2.0;
 
           //Generate trajectory from current pose to endPose, passing through waypointPose2d
           trajectory = TrajectoryGenerator.generateTrajectory(List.of(DriveBaseHolder.getInstance().getPose(), waypointPose2d, endPose2d),

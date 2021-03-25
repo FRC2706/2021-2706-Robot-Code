@@ -228,12 +228,18 @@ public class Config {
     public static double kRamseteTransferSpeed = kMaxSpeedMetersPerSecond;
     public static double kRamseteTurnAroundSpeed = kMaxSpeedMetersPerSecond; 
 
+    // If both useY and useZ are false then use X
+    public static boolean RIO_ACCELEREROMETER_USEY = robotSpecific(false, false, false, false);
+    public static boolean RIO_ACCELEREROMETER_USEZ = robotSpecific(false, false, false, false);
+
+    public static double EARTHS_GRAVITY = 9.80665;
+    
     // Converted feet to meters
     public static double METERS_IN_ONE_FOOT = 0.3048;
     // Scale the field
     private static double defaultScale = 1.0;
     public static double scaleField = robotSpecific(defaultScale, defaultScale, 1.0, defaultScale);
-
+ 
     // VISION STUFF BELOW
     // Allowable vision error in meters
     public static double ALLOWABLE_VISION_ODOMETRY_ERROR = 0.5;

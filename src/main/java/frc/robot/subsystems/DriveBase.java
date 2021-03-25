@@ -6,8 +6,10 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.config.Config;
 
 import java.util.function.Consumer;
@@ -194,12 +196,25 @@ public abstract class DriveBase extends SubsystemBase {
 
     }
 
+    public void tankDriveVolts(double leftVolts, double rightVolts) {
+        
+    }
+
     public double[] getMeasuredVelocities() {
         return new double[1];
     }
 
-    public double[] getMeasuredMetersPerSecond() {
-        return new double[1];
+    public DifferentialDriveWheelSpeeds getMeasuredMetersPerSecond() {
+        Robot.haltRobot("RAMSETE STARTED BUT NO ENCODER DATA FROM SUPER CLASS DRIVEBASE");
+        return new DifferentialDriveWheelSpeeds();
+    }
+
+    public double getXAcceleration() {
+        return 0;
+    }
+    
+    public double[] getRawGyro() {
+        return new double[3];
     }
 
     public void setActivePIDSlot(int slotId) {

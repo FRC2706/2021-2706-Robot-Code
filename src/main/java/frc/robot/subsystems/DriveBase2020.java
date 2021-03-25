@@ -15,11 +15,13 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import frc.robot.Robot;
 import frc.robot.commands.ramseteAuto.VisionPose;
 import frc.robot.commands.ramseteAuto.VisionPose.VisionType;
@@ -32,7 +34,9 @@ public class DriveBase2020 extends DriveBase {
     WPI_TalonSRX leftMaster, rightMaster, climberTalon;    
     BaseMotorController leftSlave, rightSlave;
 
-    private DifferentialDriveOdometry odometry;    
+    private DifferentialDriveOdometry odometry;   
+    
+    private BuiltInAccelerometer rioAccelerometer;
 
     public double motorCurrent; //variable to display motor current levels
     public boolean motorLimitActive = false; //states if motor current is actively being limited
@@ -80,6 +84,8 @@ public class DriveBase2020 extends DriveBase {
         setTalonConfigurations();
   
         setCoastMode();
+
+        rioAccelerometer = new BuiltInAccelerometer();
 
         if (Config.PIGEON_ID != -1) {
             if (Config.PIGEON_ID == Config.LEFT_REAR_MOTOR && leftSlave != null) 
@@ -422,6 +428,13 @@ public class DriveBase2020 extends DriveBase {
 
         differentialDrive.feed();
     }
+    
+    @Override 
+     public void tankDriveVolts(double leftVolts, double rightVolts) {
+        leftMaster.setVoltage(leftVolts);
+        rightMaster.setVoltage(-rightVolts);
+        differentialDrive.feed();
+    }
 
     @Override
     public double[] getMeasuredVelocities() {
@@ -431,11 +444,46 @@ public class DriveBase2020 extends DriveBase {
     }
 
     @Override
-    public double[] getMeasuredMetersPerSecond() {
+    public DifferentialDriveWheelSpeeds getMeasuredMetersPerSecond() {
         double[] velTalonUnits = getMeasuredVelocities();
         double leftVel = talonVelocityToMetersPerSecond(velTalonUnits[0]);
         double rightVel = talonVelocityToMetersPerSecond(velTalonUnits[1]);
-        return new double[]{leftVel, rightVel};
+        return new DifferentialDriveWheelSpeeds(leftVel, rightVel);
+    }
+
+    @Override 
+    public double getXAcceleration() {
+
+        if (Config.RIO_ACCELEREROMETER_USEY) {
+            return gToMetersPerSecond(rioAccelerometer.getY());
+        } else if (Config.RIO_ACCELEREROMETER_USEZ) {
+            return gToMetersPerSecond(rioAccelerometer.getZ());
+        } else {
+            return gToMetersPerSecond(rioAccelerometer.getX());
+        } 
+        
+        // double rioX = rioAccelerometer.getX();
+        // double rioY = rioAccelerometer.getY();
+        // double rioZ = rioAccelerometer.getZ();
+
+        // short[] pigeonAccel = new short[3];
+        // pigeon.getBiasedAccelerometer(pigeonAccel);
+        // double pigeonX = pigeonAccel[0];
+        // double pigeonY = pigeonAccel[0];
+        // double pigeonZ = pigeonAccel[0];
+
+        // return new double[1];
+    }
+
+    @Override
+    public double[] getRawGyro() {
+        double[] rawGyro = new double[3];
+        pigeon.getRawGyro(rawGyro);
+        return rawGyro;
+    }
+
+    private double gToMetersPerSecond(double g) {
+        return g * Config.EARTHS_GRAVITY;
     }
 
     private double getLeftPosition() {
