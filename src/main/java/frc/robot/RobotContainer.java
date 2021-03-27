@@ -175,7 +175,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         // Testing forced numbers
         int selectFolder = 2;
-        int selectPath = 2;
+        int selectPath = 3;
 
         int selectorOne = 0;
 
@@ -417,14 +417,14 @@ public class RobotContainer {
             }
             case 2:{
                 // Barrel Racing path
-
+                // robot: backward driving
               
                 Trajectory trajectory1 = TrajectoryGenerator.generateTrajectory(new PoseScaled (0.0,0.0,180+0.0), 
                   List.of(
                     new TranslationScaled(1.026, 0.20),
                     new TranslationScaled(1.763, -0.4),
                     new TranslationScaled(1.45,-0.808),
-                    new TranslationScaled(1.1,-0.302)), //<--- need to be adjusted. also add angles
+                    new TranslationScaled(1.1,-0.302)), //<--- need to be adjusted. 
                     new PoseScaled(1.179,0.1,180+0),
                     VisionPose.getInstance().getTrajConfig(0, Config.kRamseteTransferSpeed, true));
                 RamseteCommandMerge ramsete1 = new RamseteCommandMerge(trajectory1, "IRAH-Barrel-P1");
@@ -477,6 +477,62 @@ public class RobotContainer {
                                                   ramsete2,
                                                   ramsete3,
                                                   ramsete4);
+             }
+             case 3:
+             {
+                //slalom path
+                Trajectory trajectory1 = TrajectoryGenerator.generateTrajectory(
+                 List.of(
+                   new PoseScaled (0.0,0.0,0.0), 
+                   new PoseScaled(0.773, 0.241, 83),
+                   new PoseScaled(1.162,1.101,30.93)),
+                  // new PoseScaled(2.0,1.14,0),
+               //    new PoseScaled(1.96,1.46,1.8)),
+                   VisionPose.getInstance().getTrajConfig(0, Config.kRamseteTransferSpeed, false));
+                RamseteCommandMerge ramsete1 = new RamseteCommandMerge(trajectory1, "IRAH-Slalom-P1");
+
+                Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
+                    List.of( 
+                    endPose(trajectory1),
+                     new PoseScaled(2.4,1.13,-63),
+                    new PoseScaled(3.54,-0.0577,-25),
+                    new PoseScaled(4.23,1.26,95),
+                    new PoseScaled(3.8,1.36,179)), 
+                    VisionPose.getInstance().getTrajConfig(Config.kRamseteTransferSpeed, Config.kRamseteTransferSpeed, false));
+                RamseteCommandMerge ramsete2 = new RamseteCommandMerge(trajectory2, "IRAH-Slalom-P2");
+
+                Trajectory trajectory3 = TrajectoryGenerator.generateTrajectory(List.of( 
+                    endPose(trajectory2),
+                    new PoseScaled(3.44,1.06,-103),
+                    new PoseScaled(3.15,0.127,-115.5)), 
+                    VisionPose.getInstance().getTrajConfig(Config.kRamseteTransferSpeed, Config.kRamseteTransferSpeed, false));
+                RamseteCommandMerge ramsete3 = new RamseteCommandMerge(trajectory3, "IRAH-Slalom-P3");
+
+                Trajectory trajectory4 = TrajectoryGenerator.generateTrajectory(List.of( 
+                    endPose(trajectory3),
+                    new PoseScaled(2.89,-0.073,-172),
+                    new PoseScaled(1.29,-0.25,148.6), 
+                    new PoseScaled(1.028,0.08,101),
+                    new PoseScaled(0.91,0.72,98.2),
+                   // new PoseScaled(0.788,0.78,-100),
+                    new PoseScaled(0.87,0.78,-172),
+                    new PoseScaled(0,0,-180)), 
+                    VisionPose.getInstance().getTrajConfig(Config.kRamseteTransferSpeed, 0, false));
+                RamseteCommandMerge ramsete4 = new RamseteCommandMerge(trajectory4, "IRAH-Slalom-P4");
+               
+                return new SequentialCommandGroup(new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose(trajectory1.sample(0).poseMeters)),
+                                                  ramsete1,                             
+                                                  ramsete2,
+                                                  ramsete3, 
+                                                  ramsete4);    
+
+
+             }
+             case 4:
+             {
+                 //bounce path
+
+
              }
             
         }
