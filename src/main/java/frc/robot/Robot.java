@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,6 +25,7 @@ import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.DriveBase2020;
 import frc.robot.subsystems.DriveBaseHolder;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.RelaySubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 import java.io.PrintWriter;
@@ -226,8 +228,7 @@ public class Robot extends TimedRobot {
         //set teleop mode to false
         bFromTeleMode = false;
 
-        VisionPose.getInstance().test();
-
+        VisionPose.getInstance().test();       
 
     }
 

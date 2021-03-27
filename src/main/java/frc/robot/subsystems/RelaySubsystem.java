@@ -60,6 +60,11 @@ public class RelaySubsystem extends SubsystemBase {
         m_relay_ringlightRearLarge = new Relay(Config.RELAY_RINGLIGHT_REAR_LARGE);
         m_relay_ringlightFront = new Relay(Config.RELAY_RINGLIGHT_FRONT);
 
+        //disable the motor safty for ring lights
+        m_relay_ringlightRearSmall.setSafetyEnabled(false);
+        m_relay_ringlightRearLarge.setSafetyEnabled(false);
+        m_relay_ringlightFront.setSafetyEnabled(false);
+
         // Setup relays to be controlled from network tables
         addNetworkTableRelay(m_relay_ringlightRearSmall, "Ringlight_Rear_Small");
         addNetworkTableRelay(m_relay_ringlightRearLarge, "Ringlight_Rear_Large");
