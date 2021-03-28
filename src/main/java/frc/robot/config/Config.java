@@ -215,7 +215,7 @@ public class Config {
     // Frc-characterization data
     public static double ksVolts = robotSpecific(0.0d, 0.819d, 1.32, 1.31); // robotSpecific()
     public static double kvVoltSecondsPerMeter = robotSpecific(0.0d, 3.24, 4.65, 3.15);
-    public static double kaVoltSecondsSquaredPerMeter = robotSpecific(0.0d, 0.343, 0.5, 0.569);
+    public static double kaVoltSecondsSquaredPerMeter = robotSpecific(0.0d, 0.343, 0.8, 0.569);
 
     // Track width and kinematics
     public static double kTrackWidth = robotSpecific(0.0d, 0.5669, 0.3136, 0.69);
@@ -226,7 +226,8 @@ public class Config {
     public static double kMaxAccelerationMetersPerSecondSquared = 0.25;//0.5; 
     
     public static double kRamseteTransferSpeed = kMaxSpeedMetersPerSecond;
-    public static double kRamseteTurnAroundSpeed = kMaxSpeedMetersPerSecond; 
+    public static double kRamseteTurnAroundSpeed = kMaxSpeedMetersPerSecond-0.3; 
+    public static double kRamseteBounceEndSpeed = kMaxSpeedMetersPerSecond-0.3;
 
     // Converted feet to meters
     public static double METERS_IN_ONE_FOOT = 0.3048;

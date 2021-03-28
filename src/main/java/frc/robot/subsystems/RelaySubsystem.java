@@ -70,6 +70,8 @@ public class RelaySubsystem extends SubsystemBase {
         addNetworkTableRelay(m_relay_ringlightRearLarge, "Ringlight_Rear_Large");
         addNetworkTableRelay(m_relay_ringlightFront, "Ringlight_Front");
 
+        m_relay_ringlightRearLarge.set(Value.kOn);
+
 
         /**
          * Other stuff
@@ -132,6 +134,7 @@ public class RelaySubsystem extends SubsystemBase {
             else 
                 relayValue = Value.kOff;
 
+            System.out.println("relayValue = "+ relayValue.name());
             relay.set(relayValue);
         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate); 
 
