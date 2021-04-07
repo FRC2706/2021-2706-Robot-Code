@@ -9,87 +9,95 @@ import frc.robot.config.Config;
 import frc.robot.subsystems.FeederSubsystem;
 
 public class IndexBall extends CommandBase {
-	
-	FeederSubsystem feeder;
-	int targetPositon;
-	int incrementTicks;
-	boolean reversing;
-	boolean isDone;
 
-	boolean maxBalls;
+    FeederSubsystem feeder; 
+    int targetPositon;
+    int startPosition;
+    int incrementTicks;
+    boolean reversing;
+    boolean isDone;
 
-	private final boolean setTalonPosistionEveryCycle = true;
-	
+    // Whether the command should end next isFinished()
+	boolean endCommand;
 
-	public IndexBall() {
-		
-		feeder = FeederSubsystem.getInstance();
-
+    /** Creates a new IndexBall. */
+    public IndexBall() {
+        feeder = FeederSubsystem.getInstance();
 		addRequirements(feeder);
-	}
+    }
 
-	// Called when the command is initially scheduled.
-	@Override
-	public void initialize() {
-		incrementTicks = -1 * Config.FEEDERSUBSYSTEM_INCREMENT_TICKS.get().intValue();
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        endCommand = false;
+        if (feeder.getBallsAroundFeeder() >= Config.FEEDER_MAX_BALLS) { 
+			endCommand = true;
+			// System.out.println("Too many balls around feeder");
+            return;
+        }
 
-		int currentPosition = (int) feeder.getCurrentPosition();
-		targetPositon = currentPosition + incrementTicks;
-
+        incrementTicks = Config.FEEDERSUBSYSTEM_INCREMENT_TICKS.get().intValue();
+			// System.out.println("incrementTIcks is " + incrementTicks);
+        startPosition = (int) feeder.getCurrentPosition();
+        targetPositon = startPosition + incrementTicks;
 		feeder.setFeederPosistion(targetPositon);
-
-		reversing = false;
-		isDone = false;
-
-		if (feeder.getBallsAroundFeeder() >= Config.FEEDER_MAX_BALLS) {
-			maxBalls = true;
-			this.cancel();
-		}
-		System.out.println("____________________________________________________-");
-	}
-
-	// Called every time the scheduler runs while the command is scheduled.
-	@Override
-	public void execute() {
-		if (maxBalls == true) {
-			isDone = true;
-			return;
-		}
-
-		int currentPosition = (int) feeder.getCurrentPosition();
-		boolean atPosistion = feeder.isFeederAtPosistion(Config.FEEDERSUBSYSTEM_INDEX_ALLOWABLE_ERROR);
-		int ticksChanged = currentPosition - (targetPositon - incrementTicks);
 		
-		if (currentPosition >= targetPositon || atPosistion) {
-			isDone = true;
-		} else if (reversing) {
-			if (atPosistion) {
-				isDone = true;
-			} else if(setTalonPosistionEveryCycle) {
-				feeder.setFeederPosistion(targetPositon - incrementTicks);
-			}
-		// } else if (feeder.isBallAtInput() == false && ticksChanged < Config.FEEDERSUBSYSTEM_POS_PAST_SWITCH) {
-			// Limit unpressed & in range that it should be pressed then reverse, likely ball bounced away
-			// feeder.setFeederPosistion(targetPositon - incrementTicks);
-			// reversing = true;
-		} else if (setTalonPosistionEveryCycle) {
-			System.out.println("CurrentPos is " + currentPosition + ", targetPos is " + targetPositon);
-			feeder.setFeederPosistion(targetPositon);
-		}
+        reversing = false;
+    }
 
-	}
+    @Override
+    public void execute() {
+        // If the command should end don't do anything extra
+        if (endCommand) {
+            return;
+        }
 
-	// Called once the command ends or is interrupted.
-	@Override
-	public void end(boolean interrupted) {
-		if (reversing == false) {
-			feeder.setBallsAroundFeeder(feeder.getBallsAroundFeeder()+1);
-		}
-	}
+        int currentPosition = (int) feeder.getCurrentPosition();
+		boolean atPosistion = feeder.isFeederAtPosistion(Config.FEEDERSUBSYSTEM_INDEX_ALLOWABLE_ERROR);
 
-	// Returns true when the command should end.
-	@Override
-	public boolean isFinished() {
-		return isDone;
-	}
+        // Check end condition of ball indexed
+        if (atPosistion || currentPosition >= targetPositon) {
+            // endCommand = true;System.out.println("atpos" + atPosistion + ", curntPose > targetPos: " +  (currentPosition >= targetPositon));
+        } 
+
+		// Check if the limit unpressed within the acceptable range to start reversing
+		// Check if limit switch exists before asking for a value
+		// else if ((Config.FEEDER_SWITCH_INPUT != -1 && feeder.isBallAtInput() == false) && 
+		// 		(currentPosition - startPosition) < Config.FEEDERSUBSYSTEM_POS_PAST_SWITCH) {
+
+		// 	reversing = true; System.out.println("reversing = true");
+		// }
+
+        // If the limit switch unpressed then reverse
+        else if (reversing) {
+            if (atPosistion) {
+                endCommand = true;
+                return;
+            } else {
+                feeder.setFeederPosistion(startPosition);
+            }
+        }
+
+        else {
+			// System.out.println("Set feeder to " + targetPositon);
+            feeder.setFeederPosistion(targetPositon);
+        }
+        
+    }
+
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        // System.out.println("indexBall interrupted: " + interrupted + " , endCommand: " + endCommand);
+    }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        // Increment the number of balls around the feeder
+        if (endCommand && reversing == false) {
+            feeder.setBallsAroundFeeder(feeder.getBallsAroundFeeder()+1);
+        }
+        return endCommand;
+    }
 }

@@ -55,7 +55,7 @@ public class FeederSubsystem extends ConditionalSubsystemBase {
                 .registerToTable(Config.constantsTable);
 
     // Keep track of how many balls are around the indexer
-    private int ballsFeeder = 0;
+    private int ballsAroundFeeder = 0;
 
     private final int kTimeoutMs = 1000;
 
@@ -78,30 +78,29 @@ public class FeederSubsystem extends ConditionalSubsystemBase {
         //Initialize the IR sensor
         inputSwitch = new DigitalInput(Config.FEEDER_SWITCH_INPUT);
         // outputSwitch = new DigitalInput(Config.FEEDER_SWITCH_OUTPUT);
-
+   
         //Configure the talon
-        if (checkConditions()){
-            feederTalon.configFactoryDefault();
-            feederTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
-            feederTalon.configNominalOutputForward(0, kTimeoutMs);
-            feederTalon.configNominalOutputReverse(0, kTimeoutMs);
-            feederTalon.configPeakOutputForward(FEEDERSUBSYSTEM_PEAK_OUTPUT.get(), kTimeoutMs);
-            feederTalon.configPeakOutputReverse(-(FEEDERSUBSYSTEM_PEAK_OUTPUT.get()), kTimeoutMs);
+        feederTalon.configFactoryDefault();
+        feederTalon.setInverted(Config.FEEDERSUBSYSTEM_INVERT_MOTOR);
+        feederTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+        feederTalon.configNominalOutputForward(0, kTimeoutMs);
+        feederTalon.configNominalOutputReverse(0, kTimeoutMs);
+        feederTalon.configPeakOutputForward(FEEDERSUBSYSTEM_PEAK_OUTPUT.get(), kTimeoutMs);
+        feederTalon.configPeakOutputReverse(-(FEEDERSUBSYSTEM_PEAK_OUTPUT.get()), kTimeoutMs);
 
-           // feederTalon.configAllowableClosedloopError(0, 0, kTimeoutMs);
-            feederTalon.config_kF(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_F.get(), kTimeoutMs);
-            feederTalon.config_kP(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_P.get(), kTimeoutMs);
-            feederTalon.config_kI(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_I.get(), kTimeoutMs);
-            feederTalon.config_kD(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_D.get(), kTimeoutMs);
-            feederTalon.config_IntegralZone(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_IZONE.get(), kTimeoutMs);
-            feederTalon.configAllowableClosedloopError(0, 30, Config.CAN_TIMEOUT_SHORT);
-            feederTalon.setSelectedSensorPosition(0, 0, Config.CAN_TIMEOUT_SHORT);
+        // feederTalon.configAllowableClosedloopError(0, 0, kTimeoutMs);
+        feederTalon.config_kF(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_F.get(), kTimeoutMs);
+        feederTalon.config_kP(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_P.get(), kTimeoutMs);
+        feederTalon.config_kI(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_I.get(), kTimeoutMs);
+        feederTalon.config_kD(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_D.get(), kTimeoutMs);
+        feederTalon.config_IntegralZone(kPIDLoopIdx, Config.FEEDERSUBSYSTEM_IZONE.get(), kTimeoutMs);
+        feederTalon.configAllowableClosedloopError(0, 30, Config.CAN_TIMEOUT_SHORT);
+        feederTalon.setSelectedSensorPosition(0, 0, Config.CAN_TIMEOUT_SHORT);
 
-            feederTalon.configMotionCruiseVelocity(Config.FEEDER_MM_CRUISE_VELOCITY);
-            feederTalon.configMotionAcceleration(Config.FEEDER_MM_ACCELERATION);
-            feederTalon.configMotionSCurveStrength(Config.FEEDER_MM_SCURVE);
-        }
-
+        feederTalon.configMotionCruiseVelocity(Config.FEEDER_MM_CRUISE_VELOCITY);
+        feederTalon.configMotionAcceleration(Config.FEEDER_MM_ACCELERATION);
+        feederTalon.configMotionSCurveStrength(Config.FEEDER_MM_SCURVE);
+        
     }
 
     public static void zeroTalon() {
@@ -212,20 +211,20 @@ public class FeederSubsystem extends ConditionalSubsystemBase {
      * @return the number of balls around the feeder
      */
     public int getBallsAroundFeeder() {
-        return ballsFeeder;
+        return ballsAroundFeeder;
     }
 
     /**
      * Set the number of balls around the Feeder
      */
     public void setBallsAroundFeeder(int numBalls) {
-        ballsFeeder = numBalls;
+        ballsAroundFeeder = numBalls;
 
         // If no balls are around the feeder, 0 the encoder posistion.
-        if (ballsFeeder == 0) {
+        if (ballsAroundFeeder == 0) {
             zeroTalon();
 
-        } else if (ballsFeeder > 5) {
+        } else if (ballsAroundFeeder > 5) {
             // TODO: log if it thinks there are more than 5 balls around the feeder
         }
     }

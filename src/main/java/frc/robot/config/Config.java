@@ -108,15 +108,17 @@ public class Config {
     public static int ARM_TALON = robotSpecific(7, 7, 12, -1);
 
     public static int FEEDER_SUBSYSTEM_TALON = robotSpecific(8, 8, -1, -1);
+    public static boolean FEEDERSUBSYSTEM_INVERT_MOTOR = robotSpecific(true, true);
 
     public static int shooterAnalogSensor = robotSpecific(8, 8);
 
-    public static int FEEDER_SWITCH_INPUT = robotSpecific(9, 9, -1, -1);
+    // Input switch currently not wired/mounted on comp bot
+    public static int FEEDER_SWITCH_INPUT = robotSpecific(-1, 9, -1, -1);
     public static int FEEDER_SWITCH_OUTPUT = robotSpecific(8, 8, -1, -1);
     public static int FEEDER_MAX_BALLS = 4;
-    public static int FEEDERSUBSYSTEM_INDEX_ALLOWABLE_ERROR = 50; 
+    public static int FEEDERSUBSYSTEM_INDEX_ALLOWABLE_ERROR = 50;
     public static int FEEDERSUBSYSTEM_POS_PAST_SWITCH = 800;
-
+   
     public static double FEEDER_MM_CRUISE_VELOCITY = 1500;
     public static double FEEDER_MM_ACCELERATION = 2000;
     public static int FEEDER_MM_SCURVE = 2;

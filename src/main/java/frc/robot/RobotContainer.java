@@ -95,7 +95,8 @@ public class RobotContainer {
         new JoystickButton(controlStick, XboxController.Button.kY.value).whenHeld(runFeeder);
 
         incrementFeeder = new IncrementFeeder(-FeederSubsystem.FEEDERSUBSYSTEM_INCREMENT_TICKS.get());
-        new JoystickButton(controlStick, XboxController.Button.kX.value).whenHeld(incrementFeeder);
+        Command indexFeeder = new IndexBall();
+        new JoystickButton(controlStick, XboxController.Button.kX.value).whenActive(indexFeeder);// whenHeld(incrementFeeder);
 
         rampShooterCommand = new SpinUpShooter();
         new JoystickButton(controlStick, XboxController.Button.kA.value).toggleWhenActive(rampShooterCommand);
@@ -120,8 +121,8 @@ public class RobotContainer {
 
 
         // Set default command of feeder to index when limit is pressed
-        Command indexFeeder = new IndexBall();
-        Command pollInputSwitch = new PollLimitSwitch(indexFeeder, FeederSubsystem.getInstance(), FeederSubsystem.getInstance()::isBallAtInput);
+        Command indexFeederLimitSwitch = new IndexBall();
+        Command pollInputSwitch = new PollLimitSwitch(indexFeederLimitSwitch, FeederSubsystem.getInstance(), FeederSubsystem.getInstance()::isBallAtInput);
         FeederSubsystem.getInstance().setDefaultCommand(pollInputSwitch);
     }
 

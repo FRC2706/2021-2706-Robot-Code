@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.MotorSafety;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -153,6 +154,8 @@ public class Robot extends TimedRobot {
         //The following 2 lines run Drivebase methods that tell shuffleboard what the motor current draw is and if motor current limiting is active.
         DriveBase2020.getInstance().getMotorCurrent();
         DriveBase2020.getInstance().isMotorLimitActive();
+
+        DriverStation.getInstance().silenceJoystickConnectionWarning(true);
     }
 
     /**
