@@ -16,7 +16,9 @@ public class RunFeederCommand extends CommandBase {
 
     @Override
     public void initialize() {
-
+        // TEMPORARY
+        // Currently, nothing is counting when balls leave the feeder. Set to 0 assuming all balls will be shot.
+        FeederSubsystem.getInstance().setBallsAroundFeeder(0);
     }
 
     @Override
