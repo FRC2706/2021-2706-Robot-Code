@@ -116,7 +116,7 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        driverStick = new Joystick(0);
+        // driverStick = new Joystick(0);
         controlStick = new Joystick(1);
       
         // Instantiate the intake command and bind it
@@ -135,12 +135,13 @@ public class RobotContainer {
         rampShooterCommand = new SpinUpShooter();
         new JoystickButton(controlStick, XboxController.Button.kA.value).toggleWhenActive(rampShooterCommand);
 
-        driveCommand = new ArcadeDriveWithJoystick(driverStick, Config.LEFT_CONTROL_STICK_Y, Config.INVERT_FIRST_AXIS, Config.RIGHT_CONTROL_STICK_X, Config.INVERT_SECOND_AXIS, true);
+        driveCommand = new ArcadeDriveWithJoystick(controlStick, Config.LEFT_CONTROL_STICK_Y, Config.INVERT_FIRST_AXIS, Config.RIGHT_CONTROL_STICK_X, Config.INVERT_SECOND_AXIS, true);
         DriveBaseHolder.getInstance().setDefaultCommand(driveCommand);
 
         positionPowercell = new PositionPowercellCommand();
         new JoystickButton(controlStick, XboxController.Button.kBumperRight.value).toggleWhenActive(positionPowercell, true);
 
+        /* REMOVED FOR DEMOS
         if (Config.ARM_TALON != -1) {
             InstantCommand armSetpoint0 = new InstantCommand(() -> ArmSubsystem.getInstance().setpoint(0));  //new MoveArmManuallyCommand(-0.35);
             new JoystickButton(driverStick, XboxController.Button.kX.value).whenHeld(armSetpoint0);
@@ -168,6 +169,7 @@ public class RobotContainer {
         Command printOdometry = new PrintOdometry();
         new JoystickButton(driverStick, XboxController.Button.kBack.value).whenPressed(printOdometry);
 
+        */
 
         if (Config.FEEDER_SUBSYSTEM_TALON != -1) {
             // Set default command of feeder to index when limit is pressed
@@ -184,11 +186,11 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // Testing forced numbers
-        int selectFolder = 7;
+        int selectFolder = 0;
 
         //Note: if there is not selector,
         //      selectorOne will be forced to selectPath
-        int selectPath = 4;
+        int selectPath = 0;
         int selectorOne = 0;
 
         if (analogSelectorOne != null){
@@ -203,6 +205,8 @@ public class RobotContainer {
         }
         
         switch (selectFolder) {
+            case 0:
+                return null;
             case 1:
                 return AutoRoutines.getAutoCommandTest(selectorOne); 
 
