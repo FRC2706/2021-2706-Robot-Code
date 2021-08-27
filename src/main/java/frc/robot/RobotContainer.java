@@ -138,9 +138,12 @@ public class RobotContainer {
         driveCommand = new ArcadeDriveWithJoystick(driverStick, Config.LEFT_CONTROL_STICK_Y, Config.INVERT_FIRST_AXIS, Config.RIGHT_CONTROL_STICK_X, Config.INVERT_SECOND_AXIS, true);
         DriveBaseHolder.getInstance().setDefaultCommand(driveCommand);
 
-        positionPowercell = new PositionPowercellCommand();
-        new JoystickButton(controlStick, XboxController.Button.kBumperRight.value).toggleWhenActive(positionPowercell, true);
-
+        if(Config.robotId != 2)
+        {
+            positionPowercell = new PositionPowercellCommand();
+            new JoystickButton(controlStick, XboxController.Button.kBumperRight.value).toggleWhenActive(positionPowercell, true);
+        }
+        
         moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 2.0);
         new JoystickButton(driverStick, XboxController.Button.kA.value).whenHeld(moveToOuterPort, true);
 
@@ -174,6 +177,22 @@ public class RobotContainer {
             Command indexFeeder = new IndexBall().andThen(new DoNothingForSeconds(1.5));
             Command pollInputSwitch = new PollLimitSwitch(indexFeeder, FeederSubsystem.getInstance(), FeederSubsystem::isBallAtInput);
             FeederSubsystem.getInstance().setDefaultCommand(pollInputSwitch); 
+        }
+
+        //Checks to make sure it is the mini-robot
+        if(Config.robotId == 2)
+        {
+            //Front ring light
+            Command controlFrontRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_FRONT);
+            new JoystickButton(driverStick, XboxController.Button.kStickLeft.value).whenPressed(controlFrontRinglight);
+
+            //Rear small ring light
+            Command controlRearSmallRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_SMALL);
+            new JoystickButton(driverStick, XboxController.Button.kStickRight.value).whenPressed(controlRearSmallRinglight);
+
+            //Rear large ring light
+            Command controlRearLargeRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_LARGE);
+            new JoystickButton(driverStick, XboxController.Button.kBumperRight.value).whenPressed(controlRearLargeRinglight);
         }
     }
 
