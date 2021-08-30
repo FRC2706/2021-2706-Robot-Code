@@ -123,18 +123,6 @@ public class RobotContainer {
         intakeCommand = new OperatorIntakeCommand();
         new JoystickButton(controlStick, XboxController.Button.kBumperLeft.value).whenHeld(intakeCommand);
 
-        reverseFeeder = new ReverseFeeder();
-        new JoystickButton(controlStick, XboxController.Button.kB.value).whenHeld(reverseFeeder);
-
-        runFeeder = new RunFeederCommand(-0.3);
-        new JoystickButton(controlStick, XboxController.Button.kY.value).whenHeld(runFeeder);
-
-        incrementFeeder = new IncrementFeeder(-FeederSubsystem.FEEDERSUBSYSTEM_INCREMENT_TICKS.get());
-        new JoystickButton(controlStick, XboxController.Button.kX.value).whenHeld(incrementFeeder);
-
-        rampShooterCommand = new SpinUpShooter();
-        new JoystickButton(controlStick, XboxController.Button.kA.value).toggleWhenActive(rampShooterCommand);
-
         driveCommand = new ArcadeDriveWithJoystick(driverStick, Config.LEFT_CONTROL_STICK_Y, Config.INVERT_FIRST_AXIS, Config.RIGHT_CONTROL_STICK_X, Config.INVERT_SECOND_AXIS, true);
         DriveBaseHolder.getInstance().setDefaultCommand(driveCommand);
 
@@ -142,6 +130,18 @@ public class RobotContainer {
         {
             positionPowercell = new PositionPowercellCommand();
             new JoystickButton(controlStick, XboxController.Button.kBumperRight.value).toggleWhenActive(positionPowercell, true);
+
+            reverseFeeder = new ReverseFeeder();
+            new JoystickButton(controlStick, XboxController.Button.kB.value).whenHeld(reverseFeeder);
+
+            runFeeder = new RunFeederCommand(-0.3);
+            new JoystickButton(controlStick, XboxController.Button.kY.value).whenHeld(runFeeder);
+
+            incrementFeeder = new IncrementFeeder(-FeederSubsystem.FEEDERSUBSYSTEM_INCREMENT_TICKS.get());
+            new JoystickButton(controlStick, XboxController.Button.kX.value).whenHeld(incrementFeeder);
+
+            rampShooterCommand = new SpinUpShooter();
+            new JoystickButton(controlStick, XboxController.Button.kA.value).toggleWhenActive(rampShooterCommand);
         }
         
         moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 2.0);
@@ -184,15 +184,15 @@ public class RobotContainer {
         {
             //Front ring light
             Command controlFrontRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_FRONT);
-            new JoystickButton(driverStick, XboxController.Button.kStickLeft.value).whenPressed(controlFrontRinglight);
+            new JoystickButton(driverStick, XboxController.Button.kBumperRight.value).whenPressed(controlFrontRinglight);
 
             //Rear small ring light
             Command controlRearSmallRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_SMALL);
-            new JoystickButton(driverStick, XboxController.Button.kStickRight.value).whenPressed(controlRearSmallRinglight);
+            new JoystickButton(driverStick, XboxController.Button.kX.value).whenPressed(controlRearSmallRinglight);
 
             //Rear large ring light
             Command controlRearLargeRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_LARGE);
-            new JoystickButton(driverStick, XboxController.Button.kBumperRight.value).whenPressed(controlRearLargeRinglight);
+            new JoystickButton(driverStick, XboxController.Button.kY.value).whenPressed(controlRearLargeRinglight);
         }
     }
 
