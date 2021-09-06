@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.AnalogInput;
+import java.util.logging.Logger;
 
 import frc.robot.config.Config;
 
@@ -37,6 +38,8 @@ public class AnalogInputSubsystem extends SubsystemBase {
   private NetworkTableEntry distanceMB1043Entry;
   private NetworkTableEntry distanceInfrared2YEntry;
   private NetworkTableEntry distanceInfrared0AEntry;
+
+  private Logger logger = Logger.getLogger("AnalogInputSubsystem");
 
   public static AnalogInputSubsystem getInstance()
   {
@@ -84,6 +87,7 @@ public class AnalogInputSubsystem extends SubsystemBase {
     m_currDistanceMB1043CM = m_ultraSonic_MB1043.get();
     m_currDistanceMB1013CM = m_ultraSonic_MB1013.get(); 
 
+    //output voltage is linear with the inverse of distance, scaling factor???
     m_currDistanceInfrared2Y = m_Infrared_2Y.get();
     m_currDistanceInfrared0A = m_Infrared_0A.get();
     
@@ -91,13 +95,64 @@ public class AnalogInputSubsystem extends SubsystemBase {
     updateNetworkTable();
   }
 
-  public void updateNetworkTable()
+  private void updateNetworkTable()
   {
-
     distanceMB1013Entry.setDouble(m_currDistanceMB1013CM);
     distanceMB1043Entry.setDouble(m_currDistanceMB1043CM);
-    distanceInfrared2YEntry.setDouble(0.0);
-    distanceInfrared0AEntry.setDouble(0.0);
+    distanceInfrared2YEntry.setDouble(m_currDistanceInfrared2Y);
+    distanceInfrared0AEntry.setDouble(m_currDistanceInfrared0A);
+  }
+
+  public double getIndividualDistance( int portNumber )
+  {
+    double measuredDist = 0.0;
+
+    switch( portNumber )
+    {
+      case Config.MINIROBOT_MB1013_ANALOG_PORT:
+        measuredDist = m_currDistanceMB1013CM;
+        break;
+      case Config.MINIROBOT_MB1043_ANALOG_PORT:
+        measuredDist = m_currDistanceMB1043CM;
+        break;
+      case Config.MINIROBOT_2Y0A02_ANALOG_PORT:
+        measuredDist = m_currDistanceInfrared2Y;
+        break;
+      case Config.MINIROBOT_0A41SK_ANALOG_PORT:
+        measuredDist = m_currDistanceInfrared0A;
+        break;
+      default:
+        logger.severe(String.format("getIndividualDistance port number %d is invalid", portNumber));
+        break;
+    }
+
+    return measuredDist;
+  }
+
+  public double getCombinedDistance()
+  {
+    //@todo:
+    //combine/process all the distance information and provide a final result
+    return 0.0;
+  }
+
+  private AnalogPotentiometer getIndividualAnalogPotentiometer( int portNumber )
+  {
+    switch( portNumber )
+    {
+      case Config.MINIROBOT_MB1013_ANALOG_PORT:
+        return m_ultraSonic_MB1013;
+      case Config.MINIROBOT_MB1043_ANALOG_PORT:
+        return m_ultraSonic_MB1043;
+      case Config.MINIROBOT_2Y0A02_ANALOG_PORT:
+        return m_Infrared_2Y;
+      case Config.MINIROBOT_0A41SK_ANALOG_PORT:
+        return m_Infrared_0A;
+      default:
+        logger.severe(String.format("getIndividualAnalogInput port number %d is invalid", portNumber));
+        return null;
+    }
 
   }
+
 }

@@ -353,10 +353,10 @@ public class Config {
     
 
     //Sensor ports of analog inputs on Mini-Robot
-    public static int MINIROBOT_MB1043_ANALOG_PORT = 4;
-    public static int MINIROBOT_MB1013_ANALOG_PORT = 5;
-    public static int MINIROBOT_2Y0A02_ANALOG_PORT = 6;
-    public static int MINIROBOT_0A41SK_ANALOG_PORT = 7;
+    public static final int MINIROBOT_MB1043_ANALOG_PORT = 4;
+    public static final int MINIROBOT_MB1013_ANALOG_PORT = 5;
+    public static final int MINIROBOT_2Y0A02_ANALOG_PORT = 6;
+    public static final int MINIROBOT_0A41SK_ANALOG_PORT = 7;
 
     //ultrasound MB1043/MB1013: 30cm - 500cm
     public static double MINIROBOT_MBUltraSound_RANGE_CM    = 500;
@@ -364,7 +364,7 @@ public class Config {
     public static double MINIROBOT_MBUltraSound_CONVERT2CM  = 0.125;
     public static double MINIROBOT_INFRARED2Y_RANGE_CM      = 150;
     public static double MINIROBOT_INFRARED2Y_MIN_CM        = 20;
-    public static double MINIROBOT_INFRARED0A_RANGE_CM      = 30 ;
+    public static double MINIROBOT_INFRARED0A_RANGE_CM      = 30;
     public static double MINIROBOT_INFRARED0A_MIN_CM        = 4;
 
 
