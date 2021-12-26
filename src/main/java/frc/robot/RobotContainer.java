@@ -41,6 +41,7 @@ import frc.robot.commands.ramseteAuto.RamseteCommandMerge;
 import frc.robot.commands.ramseteAuto.TranslationScaled;
 import frc.robot.commands.ramseteAuto.VisionPose;
 import frc.robot.commands.ramseteAuto.VisionPose.VisionType;
+import frc.robot.commands.ramseteAuto.ReadPath;
 
 import frc.robot.nettables.VisionCtrlNetTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -74,7 +75,7 @@ public class RobotContainer {
   private Command intakeCommand;
   private Command reverseFeeder;
   private Command moveToOuterPort;
-    private Command reverseArmManually;
+  private Command reverseArmManually;
   private Command positionPowercell;
   private Command rampShooterCommand;
   private Command incrementFeeder;
@@ -84,7 +85,7 @@ public class RobotContainer {
   private final double AUTO_DRIVE_TIME = 1.0;
   private final double AUTO_LEFT_MOTOR_SPEED = 0.2;
   private final double AUTO_RIGHT_MOTOR_SPEED = 0.2;
-    private Command runFeeder;
+  private Command runFeeder;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -171,7 +172,6 @@ public class RobotContainer {
         Command printOdometry = new PrintOdometry();
         new JoystickButton(driverStick, XboxController.Button.kBack.value).whenPressed(printOdometry);
 
-
         if (Config.FEEDER_SUBSYSTEM_TALON != -1) {
             // Set default command of feeder to index when limit is pressed
             Command indexFeeder = new IndexBall().andThen(new DoNothingForSeconds(1.5));
@@ -179,7 +179,8 @@ public class RobotContainer {
             FeederSubsystem.getInstance().setDefaultCommand(pollInputSwitch); 
         }
 
-        //Checks to make sure it is the mini-robot
+        //Checks to make sure it is the mini-robot/Beetle
+        //specific control button for Beetle
         if(Config.robotId == 2)
         {
             //Front ring light
@@ -193,6 +194,10 @@ public class RobotContainer {
             //Rear large ring light
             Command controlRearLargeRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_LARGE);
             new JoystickButton(driverStick, XboxController.Button.kY.value).whenPressed(controlRearLargeRinglight);
+
+            //Read a trajectory
+            Command readTrajectory = new ReadPath( Robot.trajectorySlalom, "Slalom path");
+            new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(readTrajectory);
         }
     }
 
