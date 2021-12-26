@@ -120,15 +120,18 @@ public class RobotContainer {
         driverStick = new Joystick(0);
         controlStick = new Joystick(1);
       
-        // Instantiate the intake command and bind it
-        intakeCommand = new OperatorIntakeCommand();
-        new JoystickButton(controlStick, XboxController.Button.kBumperLeft.value).whenHeld(intakeCommand);
-
         driveCommand = new ArcadeDriveWithJoystick(driverStick, Config.LEFT_CONTROL_STICK_Y, Config.INVERT_FIRST_AXIS, Config.RIGHT_CONTROL_STICK_X, Config.INVERT_SECOND_AXIS, true);
         DriveBaseHolder.getInstance().setDefaultCommand(driveCommand);
 
-        if(Config.robotId != 2)
+        sensitiveDriving = new SensitiveDriverControl(driverStick);
+        new JoystickButton(driverStick, XboxController.Button.kBumperLeft.value).whenHeld(sensitiveDriving);
+
+        if(Config.robotId != 2) //any robot except for Beetle
         {
+            // Instantiate the intake command and bind it
+            intakeCommand = new OperatorIntakeCommand();
+            new JoystickButton(controlStick, XboxController.Button.kBumperLeft.value).whenHeld(intakeCommand);
+
             positionPowercell = new PositionPowercellCommand();
             new JoystickButton(controlStick, XboxController.Button.kBumperRight.value).toggleWhenActive(positionPowercell, true);
 
@@ -143,11 +146,29 @@ public class RobotContainer {
 
             rampShooterCommand = new SpinUpShooter();
             new JoystickButton(controlStick, XboxController.Button.kA.value).toggleWhenActive(rampShooterCommand);
+
+            moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 2.0);
+            new JoystickButton(driverStick, XboxController.Button.kA.value).whenHeld(moveToOuterPort, true);
+        }
+        else //specifically for Beetle
+        {
+            //Front ring light
+            Command controlFrontRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_FRONT);
+            new JoystickButton(driverStick, XboxController.Button.kBumperRight.value).whenPressed(controlFrontRinglight);
+            
+            //Rear small ring light
+            Command controlRearSmallRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_SMALL);
+            new JoystickButton(driverStick, XboxController.Button.kX.value).whenPressed(controlRearSmallRinglight);
+            
+            //Rear large ring light
+            Command controlRearLargeRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_LARGE);
+            new JoystickButton(driverStick, XboxController.Button.kY.value).whenPressed(controlRearLargeRinglight);
+            
+            //Read a trajectory
+            Command readTrajectory = new ReadPath( Robot.trajectorySlalom, "Slalom path");
+            new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(readTrajectory);
         }
         
-        moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 2.0);
-        new JoystickButton(driverStick, XboxController.Button.kA.value).whenHeld(moveToOuterPort, true);
-
         if (Config.ARM_TALON != -1) {
             reverseArmManually = new MoveArmManuallyCommand(-0.35);
             new JoystickButton(driverStick, XboxController.Button.kX.value).whenHeld(reverseArmManually);
@@ -159,19 +180,6 @@ public class RobotContainer {
             // new JoystickButton(driverStick, XboxController.Button.kB.value).whenActive(lowerArm);
         }
 
-        sensitiveDriving = new SensitiveDriverControl(driverStick);
-        new JoystickButton(driverStick, XboxController.Button.kBumperLeft.value).whenHeld(sensitiveDriving);
-
-        // Command resetHeading = new InstantCommand(() -> DriveBaseHolder.getInstance().resetHeading(Rotation2d.fromDegrees(0)));
-        // new JoystickButton(driverStick, XboxController.Button.kStart.value).whenActive(resetHeading);
-
-        //@todo: put the robot at the same place whenever we start a new path
-        Command resetHeading = new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose( new Pose2d()));
-        new JoystickButton(driverStick, XboxController.Button.kStart.value).whenActive(resetHeading);
-        
-        Command printOdometry = new PrintOdometry();
-        new JoystickButton(driverStick, XboxController.Button.kBack.value).whenPressed(printOdometry);
-
         if (Config.FEEDER_SUBSYSTEM_TALON != -1) {
             // Set default command of feeder to index when limit is pressed
             Command indexFeeder = new IndexBall().andThen(new DoNothingForSeconds(1.5));
@@ -179,26 +187,15 @@ public class RobotContainer {
             FeederSubsystem.getInstance().setDefaultCommand(pollInputSwitch); 
         }
 
-        //Checks to make sure it is the mini-robot/Beetle
-        //specific control button for Beetle
-        if(Config.robotId == 2)
-        {
-            //Front ring light
-            Command controlFrontRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_FRONT);
-            new JoystickButton(driverStick, XboxController.Button.kBumperRight.value).whenPressed(controlFrontRinglight);
+        // Command resetHeading = new InstantCommand(() -> DriveBaseHolder.getInstance().resetHeading(Rotation2d.fromDegrees(0)));
+        // new JoystickButton(driverStick, XboxController.Button.kStart.value).whenActive(resetHeading);
 
-            //Rear small ring light
-            Command controlRearSmallRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_SMALL);
-            new JoystickButton(driverStick, XboxController.Button.kX.value).whenPressed(controlRearSmallRinglight);
-
-            //Rear large ring light
-            Command controlRearLargeRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_LARGE);
-            new JoystickButton(driverStick, XboxController.Button.kY.value).whenPressed(controlRearLargeRinglight);
-
-            //Read a trajectory
-            Command readTrajectory = new ReadPath( Robot.trajectorySlalom, "Slalom path");
-            new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(readTrajectory);
-        }
+        //@todo: put the robot at the same place whenever we start a new path
+        Command resetPose = new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose( new Pose2d()));
+        new JoystickButton(driverStick, XboxController.Button.kStart.value).whenActive(resetPose);
+        
+        Command printOdometry = new PrintOdometry();
+        new JoystickButton(driverStick, XboxController.Button.kBack.value).whenPressed(printOdometry);
     }
 
     /**
