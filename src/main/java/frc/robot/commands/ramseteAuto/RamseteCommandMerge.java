@@ -11,6 +11,7 @@
 package frc.robot.commands.ramseteAuto;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
@@ -120,12 +121,17 @@ public class RamseteCommandMerge extends CommandBase {
 
         m_driveSubsystem.setActivePIDSlot(Config.DRIVETRAIN_SLOTID_RAMSETE);
         m_driveSubsystem.setCoastMode();
+
+        //reset the odometry to the first pose of the trajectory
+        DriveBaseHolder.getInstance().resetPose(m_trajectory.getInitialPose());
+    
     }
 
     @Override
     public void execute() {
         m_totalTimeElapsed = m_timer.get();
         double curTime = m_totalTimeElapsed - m_timeBeforeTrajectory;
+        //NOTE: need to make sure dt is not too small, i.e. real time
         double dt = m_totalTimeElapsed - m_prevTime;
 
         Pose2d currentPose = m_driveSubsystem.getPose();
@@ -141,6 +147,7 @@ public class RamseteCommandMerge extends CommandBase {
         yCurrent.setNumber(currentPose.getTranslation().getY());
         rotCurrent.setNumber(currentPose.getRotation().getDegrees());
 
+        //m_follower: ramsete controller to calculate the chassis speed
         var targetWheelSpeeds = m_kinematics.toWheelSpeeds(m_follower.calculate(currentPose, desiredState));
 
         double leftSpeedSetpoint = targetWheelSpeeds.leftMetersPerSecond;
@@ -159,21 +166,35 @@ public class RamseteCommandMerge extends CommandBase {
         m_prevSpeeds = targetWheelSpeeds;
 
         // Get measure velocities for logging
-        double measuredVelocities[] = m_driveSubsystem.getMeasuredVelocities();
+        // encoder measured velocities
+        double measuredVelocities[] = m_driveSubsystem.getMeasuredMetersPerSecond();
 
         // Log Data - See Spreadsheet link at top
-        logData(m_totalTimeElapsed, desiredState.poseMeters.getTranslation().getX(),
-                desiredState.poseMeters.getTranslation().getY(), desiredState.poseMeters.getRotation().getDegrees(),
-                desiredState.velocityMetersPerSecond, desiredState.accelerationMetersPerSecondSq,
-                desiredState.curvatureRadPerMeter, currentPose.getTranslation().getX(),
-                currentPose.getTranslation().getY(), currentPose.getRotation().getDegrees(),
-                poseError.getTranslation().getX(), poseError.getTranslation().getY(),
-                poseError.getRotation().getDegrees(), leftSpeedSetpoint, rightSpeedSetpoint, measuredVelocities[0],
-                measuredVelocities[1], leftFeedforward, rightFeedforward, 
-                leftAcceleration, rightAcceleration, targetPose.getTranslation().getX(),
-                targetPose.getTranslation().getY(), targetPose.getRotation().getDegrees());
+        logData(m_totalTimeElapsed, 
+                desiredState.poseMeters.getTranslation().getX(), //from trajectory
+                desiredState.poseMeters.getTranslation().getY(), 
+                desiredState.poseMeters.getRotation().getDegrees(),
+                desiredState.velocityMetersPerSecond, 
+                desiredState.accelerationMetersPerSecondSq,
+                desiredState.curvatureRadPerMeter, 
+                currentPose.getTranslation().getX(),            //from encoder and gyro
+                currentPose.getTranslation().getY(), 
+                currentPose.getRotation().getDegrees(),
+                poseError.getTranslation().getX(), 
+                poseError.getTranslation().getY(),
+                poseError.getRotation().getDegrees(), 
+                leftSpeedSetpoint,         // calculated from Rameset controller, based on currentPose and desiredState
+                rightSpeedSetpoint, 
+                measuredVelocities[0],     //wrong unit?
+                measuredVelocities[1],     //wrong unit?
+                leftFeedforward,  //FF value for voltage, instead of speed. Scaling factor.
+                rightFeedforward, 
+                leftAcceleration, 
+                rightAcceleration, 
+                targetPose.getTranslation().getX(),
+                targetPose.getTranslation().getY(), 
+                targetPose.getRotation().getDegrees());
 
-    
     }
 
     @Override

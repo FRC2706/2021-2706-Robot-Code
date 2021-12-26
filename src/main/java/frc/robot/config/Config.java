@@ -74,7 +74,7 @@ public class Config {
      **/
     //ID 0 is comp 2020 bot
     //ID 1 is practice 2020 comp bot
-    //ID 2 is mini-robot
+    //ID 2 is mini-robot (Beetle)
     //ID 3 is Mergonaut (Deep Space Chassis)
     //
     
@@ -154,7 +154,7 @@ public class Config {
     public static int RIGHT_CONTROL_STICK_Y = 5;
     public static int RIGHT_CONTROL_STICK_X = 4;
     
-    public static boolean INVERT_FIRST_AXIS = robotSpecific(true, true, false);
+    public static boolean INVERT_FIRST_AXIS = robotSpecific(true, true, true);
     public static boolean INVERT_SECOND_AXIS = robotSpecific(false, false, false);
     
     public static boolean HAS_FOLLOWERS = robotSpecific(true, true, false, true, true);
@@ -216,7 +216,7 @@ public class Config {
     // Frc-characterization data
     // id0: CompBot 
     // id1: PracBot - Previous: 3.24, 0.343 Parking Lot: 1.33, 2.89, 0.164 LargerSpace: 1.15, 2.84, 2
-    // id2: Minibot - 
+    // id2: Minibot - church parking lot 1.32, 4.65, 0.5
     // id3: DS Robot - Church Parking Lot 1.28, 3.13, 0.463
     public static double ksVolts = robotSpecific(1.1, 1.15, 1.32, 1.28);
     public static double kvVoltSecondsPerMeter = robotSpecific(3.03, 2.84, 4.65, 3.13);
@@ -227,8 +227,9 @@ public class Config {
     public static DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackWidth);
 
     // Ramsete Max Velocity and max acceleration
-    public static double kMaxSpeedMetersPerSecond = 2.4; // DS Video -> 3.0
-    public static double kMaxAccelerationMetersPerSecondSquared = 2.4; // DS Video -> 2.0 
+    //Beetle: old value = 1.5; new value = 1.838
+    public static double kMaxSpeedMetersPerSecond = robotSpecific(2.4,2.4,1.838,2.4);//2.4; // DS Video -> 3.0
+    public static double kMaxAccelerationMetersPerSecondSquared =  robotSpecific(2.4,2.4,1.838,2.4);//2.4; // DS Video -> 2.0 
 
     public static double kRamseteTransferSpeed = kMaxSpeedMetersPerSecond;
     public static double kRamseteTurnAroundSpeed = kMaxSpeedMetersPerSecond; 
@@ -239,7 +240,7 @@ public class Config {
     public static double METERS_IN_ONE_FOOT = 0.3048;
     // Scale the field
     private static double defaultScale = 1.0;
-    public static double scaleField = robotSpecific(defaultScale, defaultScale, 1.0, defaultScale);
+    public static double scaleField = robotSpecific(defaultScale, defaultScale, 0.5, defaultScale);
 
     // VISION STUFF BELOW
     // Allowable vision error in meters
@@ -293,13 +294,15 @@ public class Config {
     // P Values from characterization:
     // id0: 
     // id1:
-    // id2:
+    // id2: church parking lot: 0.0434
     // id3: 0.0888 from church parking lot, 0.0105 from basement -> averaged to 0.05 (idk but it worked)
+    // kF:
+    // id2: (Beetle) based on 75% output
     public static int DRIVETRAIN_SLOTID_RAMSETE = 1;
-    public static double RAMSETE_KF = 0;
+    public static double RAMSETE_KF = robotSpecific(0.0, 0.0, 0.38, 0.0);
     public static double RAMSETE_KP = robotSpecific(0.03, 0.0207, 0.0434, 0.05); //0.0884//0.0105
     public static double RAMSETE_KI = 0;
-    public static double RAMSETE_KD = 0;
+    public static double RAMSETE_KD = 0; //maybe set to some value
     public static double RAMSETE_ALLOWABLE_PID_ERROR = 0; // <- never stop the P loop from running
     public static double RAMSETE_VOLTAGE_COMPENSATION = 12;
 

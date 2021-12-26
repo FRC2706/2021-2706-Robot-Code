@@ -337,9 +337,14 @@ public class DriveBase2020 extends DriveBase {
 
             odometry.update(Rotation2d.fromDegrees(getCurrentAngle()), getLeftPosition(), getRightPosition());
         
+            //@todo: try
+            //odometry.update(Rotation2d.fromDegrees(-getCurrentAngle()), getLeftPosition(), getRightPosition());
+   
+            //from encoders' positions
             leftEncoder.setNumber(getLeftPosition());
             rightEncoder.setNumber(getRightPosition());
 
+            //pose from odometry
             Pose2d pose = getPose();
             currentX.setNumber(pose.getX());
             currentY.setNumber(pose.getY());

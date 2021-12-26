@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Robot;
 import frc.robot.commands.AutoIntakeCommand;
 import frc.robot.commands.DriveWithTime;
 import frc.robot.commands.IndexBall;
@@ -1123,9 +1124,9 @@ public class AutoRoutines {
             }
             
 
-                case 3: {
+            case 3: {
                     // BarrelRacing
-                    Trajectory trajectory1 = TrajectoryGenerator.generateTrajectory(List.of(
+                Trajectory trajectory1 = TrajectoryGenerator.generateTrajectory(List.of(
                         new PoseScaled(0.000, 0.000, 0.0),
                         new PoseScaled(2.954, 0.016, -0.791),
                         new PoseScaled(4.008, -0.925, -90.615),
@@ -1144,17 +1145,17 @@ public class AutoRoutines {
                         new PoseScaled(2.940, -0.365, -172.002),
                         new PoseScaled(-0.099, -0.35, -180)),
                         VisionPose.getInstance().getTrajConfig(0, 0, false));
-                    RamseteCommandMerge ramsete1 = new RamseteCommandMerge(trajectory1, "IRAHComp-BarrelRacing");
+                RamseteCommandMerge ramsete1 = new RamseteCommandMerge(trajectory1, "IRAHComp-BarrelRacing");
 
-                    return new SequentialCommandGroup(
+                return new SequentialCommandGroup(
                             new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose(trajectory1.sample(0).poseMeters)),
                             new LowerArm(),
                             ramsete1);
                 }
 
-                case 4: {
+            case 4: {
                     // Slolam
-                    Trajectory trajectory1 = TrajectoryGenerator.generateTrajectory(List.of(
+                Trajectory trajectory1 = TrajectoryGenerator.generateTrajectory(List.of(
                     new PoseScaled(0.300, 0.000, -180),
                     new PoseScaled(0.902, 0.165, -138.955),
                     new PoseScaled(1.301, 0.947, -98.921),
@@ -1172,22 +1173,35 @@ public class AutoRoutines {
                     new PoseScaled(0.448, 0.9, 4.043),
                     new PoseScaled(-0.824, 1.0, 3.604)),
                     VisionPose.getInstance().getTrajConfig(0, 0, true));
-            RamseteCommandMerge ramsete1 = new RamseteCommandMerge(trajectory1, "IRAHPrac-Slolam-P1");
-            return new SequentialCommandGroup (
-                new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose(trajectory1.getInitialPose())),
-                new LowerArm(),
-                ramsete1
-            );//.alongWith(new LowerArm());
-        }
-                
 
+                    //use the above trajectory1        
+                    //RamseteCommandMerge ramsete1 = new RamseteCommandMerge(trajectory1, "IRAHPrac-Slolam-P1");
+                    //use the imported trajector
+                    RamseteCommandMerge ramsete1 = new RamseteCommandMerge(Robot.trajectorySlalom, "IRAHPrac-Scaled3");
+                    
+                    //use if (Config.ARM_TALON != -1)  to detect if the robot has an arm.
+                    if (Config.ARM_TALON != -1) 
+                    {
+                        return new SequentialCommandGroup (
+                            new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose(Robot.trajectorySlalom.getInitialPose())),
+                            new LowerArm(),
+                            ramsete1
+                            );//.alongWith(new LowerArm());
+                    }
+                    else{
+                        return new SequentialCommandGroup (
+                            new InstantCommand(() -> DriveBaseHolder.getInstance().resetPose(Robot.trajectorySlalom.getInitialPose())),
+                            ramsete1);
+                    }
+                }
+                
                 default:
                     return null;
         }
 
     }
 
-           /**
+    /**
      * Helper method for constructing trajectories. Gets the final pose of a given trajectory.
      * 
      * RamseteCommandMerge has the same functionality with the getTargetPose() method
