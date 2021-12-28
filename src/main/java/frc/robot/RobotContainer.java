@@ -91,6 +91,8 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        UltrasoundSensor sensor = new UltrasoundSensor();
+
         // Configure the button bindings
         logger.addHandler(Config.logFileHandler);
         if (Config.ANALOG_SELECTOR_ONE != -1) {
@@ -108,6 +110,8 @@ public class RobotContainer {
         if (Config.robotId == 2) {
             RelaySubsystem.getInstance();
         }
+
+    
     }
 
     /**
