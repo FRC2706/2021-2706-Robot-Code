@@ -10,9 +10,14 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.DriveBaseHolder;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
+import frc.robot.commands.ramseteAuto.SimpleCsvLogger;
 
 /**
  * Drive the robot using values for driving forward and rotation (Arcade Drive)
@@ -27,6 +32,11 @@ public class ArcadeDrive extends CommandBase {
 
   private final DriveBase driveBase;
 
+  private NetworkTableEntry forwardValue, rotationValue;
+
+  // USB Logger
+  private SimpleCsvLogger usbLogger;
+  private String loggingDataIdentifier = "ArcadeDrive";
 /**
  * Creates the arcade drive
  * 
@@ -44,6 +54,8 @@ public class ArcadeDrive extends CommandBase {
     this.initBrake = initBrake;
     this.driveBase = DriveBaseHolder.getInstance();
     addRequirements(this.driveBase);
+   
+    usbLogger = new SimpleCsvLogger();
   }
   
   // Called when the command is initially scheduled.
@@ -52,6 +64,13 @@ public class ArcadeDrive extends CommandBase {
     // Prepare for driving by human
     this.driveBase.setDriveMode(DriveBase.DriveMode.OpenLoopVoltage);
     this.driveBase.setNeutralMode(initBrake ? NeutralMode.Brake : NeutralMode.Coast);
+
+    var table = NetworkTableInstance.getDefault().getTable("ArcadeDriveData");
+    forwardValue = table.getEntry("forwardValue");
+    rotationValue = table.getEntry("rotationValue");
+    
+    this.driveBase.startLogging();
+    startLogging();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -59,7 +78,12 @@ public class ArcadeDrive extends CommandBase {
   public void execute() {
     // Pass values to drive base to make the robot move
     this.driveBase.arcadeDrive(forwardVal.get(), rotateVal.get(), squareInputs);
+  //  System.out.println("Forward value: "+forwardVal.get());
+  //  System.out.println("Rotation value: "+rotateVal.get());
+    forwardValue.setValue(forwardVal.get());
+    rotationValue.setValue(rotateVal.get());
 
+    logData(forwardVal.get(), rotateVal.get());
   }
 
   // Called once the command ends or is interrupted.
@@ -67,5 +91,27 @@ public class ArcadeDrive extends CommandBase {
   public void end(boolean interrupted) {
     // Go back to disabled mode
     this.driveBase.setDriveMode(DriveBase.DriveMode.Disabled);
+
+    this.driveBase.stopLogging();
+    stopLogging();
   }
+
+  /**
+     * All Methods used for USB logging startLogging() logData(data) stopLogging()
+     */
+    public void startLogging() {
+      // See Spreadsheet link at top
+      usbLogger.init(loggingDataIdentifier, 
+              new String[] { "FVal",
+                             "RVal"},
+              new String[]{" "," "});
+    }
+
+    public void logData(double... data) {
+        usbLogger.writeData(data);
+    }
+
+    public void stopLogging() {
+        usbLogger.close();
+    }
 }

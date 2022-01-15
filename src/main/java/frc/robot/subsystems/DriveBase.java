@@ -209,5 +209,10 @@ public abstract class DriveBase extends SubsystemBase {
 
     public abstract boolean isMotorLimitActive();
 
-    
+    public void startLogging(){
+    }
+
+    public void stopLogging(){     
+    }
+
 }

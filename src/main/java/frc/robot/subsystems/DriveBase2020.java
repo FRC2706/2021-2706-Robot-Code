@@ -28,10 +28,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.logging.Logger;
 
+import frc.robot.commands.ramseteAuto.SimpleCsvLogger;
+
 public class DriveBase2020 extends DriveBase {
     WPI_TalonSRX leftMaster, rightMaster, climberTalon;    
     BaseMotorController leftSlave, rightSlave;
-
+    
     private DifferentialDriveOdometry odometry;    
 
     public double motorCurrent; //variable to display motor current levels
@@ -40,8 +42,11 @@ public class DriveBase2020 extends DriveBase {
     // Logging
     private Logger logger = Logger.getLogger("DriveBase2020");
 
-    private NetworkTableEntry leftEncoder, rightEncoder, currentX, currentY, currentAngle, currentPose;
+    // USB Logger
+    private SimpleCsvLogger usbLogger;
+    private String loggingDataIdentifier = "DriveBase2020";
 
+    private NetworkTableEntry leftEncoder, rightEncoder, currentX, currentY, currentAngle, currentPose, leftVelocityMetersPerSecond, rightVelocityMetersPerSecond;
     public DriveBase2020() {
         leftMaster = new WPI_TalonSRX(Config.LEFT_MASTER);
         rightMaster = new WPI_TalonSRX(Config.RIGHT_MASTER);
@@ -102,9 +107,13 @@ public class DriveBase2020 extends DriveBase {
         currentY = table.getEntry("currentY");
         currentAngle = table.getEntry("currentAngle");
         currentPose = table.getEntry("currentPose");
-        
-
+        leftVelocityMetersPerSecond = table.getEntry("leftVelocityMetersPerSecond");
+        rightVelocityMetersPerSecond = table.getEntry("rightVelocityMetersPerSecond");
+    
+        usbLogger = new SimpleCsvLogger();
     }
+
+    
 
     @Override
     public double getMotorCurrent() {
@@ -351,6 +360,18 @@ public class DriveBase2020 extends DriveBase {
             currentAngle.setNumber(pose.getRotation().getDegrees());
 
             currentPose.setString(String.format("new PoseScaled(%.3f, %.3f, %.3f)", pose.getX(), pose.getY(), pose.getRotation().getDegrees()));
+            double measuredVelocities[] = getMeasuredMetersPerSecond();
+
+            leftVelocityMetersPerSecond.setNumber(measuredVelocities[0]);
+            rightVelocityMetersPerSecond.setNumber(measuredVelocities[1]);
+
+            logData(getLeftPosition(),
+                    getRightPosition(),
+                    pose.getX(),
+                    pose.getY(),
+                    pose.getRotation().getDegrees(),
+                    measuredVelocities[0],
+                    measuredVelocities[1]);  
         }
 
         // System.out.println("VISION TARGET: " + VisionPose.getInstance().getTargetTranslation(VisionType.TPracticeTarget)); 
@@ -512,4 +533,38 @@ public class DriveBase2020 extends DriveBase {
     private double talonVelocityToMetersPerSecond(double talonVelocity) {
         return talonPosistionToMeters(talonVelocity * 10); // Convert ticks/100ms to ticks/sec
     }
+
+    /**
+     * All Methods used for USB logging startLogging() logData(data) stopLogging()
+     */
+    @Override
+    public void startLogging() {
+        // See Spreadsheet link at top
+        usbLogger.init(loggingDataIdentifier, 
+                new String[] { "LPos",
+                               "RPos",
+                               "currentX",
+                               "currentY",
+                               "currentAngle",
+                               "LVel",
+                               "RVel"},
+                new String[] { "m", 
+                               "m",
+                               "m",
+                               "m",
+                               "deg",
+                               "m/s",
+                               "m/s"});
+        }
+
+
+    public void logData(double... data) {
+        usbLogger.writeData(data);
+    }
+
+    @Override
+    public void stopLogging() {
+        usbLogger.close();
+    }
 }
+
