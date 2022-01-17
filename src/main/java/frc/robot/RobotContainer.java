@@ -169,8 +169,17 @@ public class RobotContainer {
             new JoystickButton(driverStick, XboxController.Button.kY.value).whenPressed(controlRearLargeRinglight);
             
             //Read a trajectory
-            Command readTrajectory = new ReadPath( Robot.trajectorySlalom, "Slalom path");
-            new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(readTrajectory);
+            // Command readTrajectory = new ReadPath( Robot.trajectorySlalom, "Slalom path");
+            // new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(readTrajectory);
+
+            //Turn a specific angle
+            moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 2.0);
+            new JoystickButton(driverStick, XboxController.Button.kA.value).whenHeld(moveToOuterPort, true);
+
+            Command alignment = new DrivetrainAlignment( 0 );
+            new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(alignment);
+
+
         }
         
         if (Config.ARM_TALON != -1) {

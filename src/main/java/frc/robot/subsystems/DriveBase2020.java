@@ -111,9 +111,7 @@ public class DriveBase2020 extends DriveBase {
         rightVelocityMetersPerSecond = table.getEntry("rightVelocityMetersPerSecond");
     
         usbLogger = new SimpleCsvLogger();
-    }
-
-    
+    }    
 
     @Override
     public double getMotorCurrent() {
@@ -189,6 +187,12 @@ public class DriveBase2020 extends DriveBase {
 
         talonConfig.voltageCompSaturation = Config.RAMSETE_VOLTAGE_COMPENSATION;
 
+        // Slot 2 belongs to drive train alignment
+        talonConfig.slot2.kF = Config.ALIGNMENT_KF;
+        talonConfig.slot2.kP = Config.ALIGNMENT_KP;
+        talonConfig.slot2.kI = Config.ALIGNMENT_KI;
+        talonConfig.slot2.kD = Config.ALIGNMENT_KD;
+        talonConfig.slot2.allowableClosedloopError = Config.ALIGNMENT_ALLOWABLE_PID_ERROR;
         
         //Current limiting for drivetrain master motors.
         if (Config.MOTOR_CURRENT_LIMIT == true) {
@@ -375,8 +379,6 @@ public class DriveBase2020 extends DriveBase {
         }
 
         // System.out.println("VISION TARGET: " + VisionPose.getInstance().getTargetTranslation(VisionType.TPracticeTarget)); 
-
-
     }
 
     /**
@@ -453,6 +455,19 @@ public class DriveBase2020 extends DriveBase {
     }
 
     @Override
+    public void tankDrivePosition( double leftPos, double rightPos)
+    {
+        //@todo: if leftPos and rightPos are opposite?
+        //Q: encoder position: postive (forward) or negative (backward)? <--- looks like correct
+        //theoretically, the encoder position should be always increasing.
+        //Then how to set the rotation direction? i.e. invert?
+        leftMaster.set(ControlMode.Position, metersToTalonPosistion(leftPos));
+        rightMaster.set(ControlMode.Position, metersToTalonPosistion(rightPos)); 
+
+        differentialDrive.feed();
+    }
+
+    @Override
     public double[] getMeasuredVelocities() {
         double leftVel = leftMaster.getSelectedSensorVelocity();
         double rightVel = rightMaster.getSelectedSensorVelocity();
@@ -474,6 +489,18 @@ public class DriveBase2020 extends DriveBase {
     private double getRightPosition() {
         return talonPosistionToMeters(rightMaster.getSelectedSensorPosition());
     }
+
+    @Override
+    public double getLeftEncoderPosition() {
+        return leftMaster.getSelectedSensorPosition();
+    }
+
+    @Override
+    public double getRightEncoderPosition() {
+        return rightMaster.getSelectedSensorPosition();
+    }
+
+
 
 
     /**

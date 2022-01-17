@@ -194,12 +194,24 @@ public abstract class DriveBase extends SubsystemBase {
 
     }
 
+    public void tankDrivePosition( double leftPos, double rightPos)
+    {
+
+    }
     public double[] getMeasuredVelocities() {
         return new double[1];
     }
 
     public double[] getMeasuredMetersPerSecond() {
         return new double[1];
+    }
+
+    public double getLeftEncoderPosition() {
+        return 0.0;
+    }
+
+    public double getRightEncoderPosition() {
+        return 0.0;
     }
 
     public void setActivePIDSlot(int slotId) {
