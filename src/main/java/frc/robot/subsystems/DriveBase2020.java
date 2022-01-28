@@ -168,7 +168,6 @@ public class DriveBase2020 extends DriveBase {
         rightMaster.configPeakCurrentDuration(0);
         rightMaster.configContinuousCurrentLimit(0);
 
-
         this.followMotors();
     }
 
@@ -193,6 +192,11 @@ public class DriveBase2020 extends DriveBase {
         talonConfig.slot2.kI = Config.ALIGNMENT_KI;
         talonConfig.slot2.kD = Config.ALIGNMENT_KD;
         talonConfig.slot2.allowableClosedloopError = Config.ALIGNMENT_ALLOWABLE_PID_ERROR;
+        //Motion Magic Closed-Loop Configs
+        talonConfig.motionAcceleration = metersToTalonPosistion(0.6); //6m/s2
+        talonConfig.motionCruiseVelocity = metersToTalonPosistion(0.3); //3 metter/sec
+        
+        
         
         //Current limiting for drivetrain master motors.
         if (Config.MOTOR_CURRENT_LIMIT == true) {
@@ -457,12 +461,14 @@ public class DriveBase2020 extends DriveBase {
     @Override
     public void tankDrivePosition( double leftPos, double rightPos)
     {
-        //@todo: if leftPos and rightPos are opposite?
-        //Q: encoder position: postive (forward) or negative (backward)? <--- looks like correct
-        //theoretically, the encoder position should be always increasing.
-        //Then how to set the rotation direction? i.e. invert?
-        leftMaster.set(ControlMode.Position, metersToTalonPosistion(leftPos));
-        rightMaster.set(ControlMode.Position, metersToTalonPosistion(rightPos)); 
+        //Note: encoder position: postive (forward) or negative (backward)? <--- looks like correct
+        //position close-loop control
+        // leftMaster.set(ControlMode.Position, metersToTalonPosistion(leftPos));
+        // rightMaster.set(ControlMode.Position, metersToTalonPosistion(rightPos)); 
+
+        //motion magic position close-loop control
+        leftMaster.set(ControlMode.MotionMagic, metersToTalonPosistion(leftPos));
+        rightMaster.set(ControlMode.MotionMagic, metersToTalonPosistion(rightPos));
 
         differentialDrive.feed();
     }
@@ -482,11 +488,13 @@ public class DriveBase2020 extends DriveBase {
         return new double[]{leftVel, rightVel};
     }
 
-    private double getLeftPosition() {
+    @Override
+    public double getLeftPosition() {
         return talonPosistionToMeters(leftMaster.getSelectedSensorPosition());
     }
 
-    private double getRightPosition() {
+    @Override
+    public double getRightPosition() {
         return talonPosistionToMeters(rightMaster.getSelectedSensorPosition());
     }
 

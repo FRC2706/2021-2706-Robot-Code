@@ -161,25 +161,27 @@ public class RobotContainer {
             new JoystickButton(driverStick, XboxController.Button.kBumperRight.value).whenPressed(controlFrontRinglight);
             
             //Rear small ring light
-            Command controlRearSmallRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_SMALL);
-            new JoystickButton(driverStick, XboxController.Button.kX.value).whenPressed(controlRearSmallRinglight);
+            //Command controlRearSmallRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_SMALL);
+            //new JoystickButton(driverStick, XboxController.Button.kX.value).whenPressed(controlRearSmallRinglight);
             
+            Command printX = new PrintOdometry();
+            new JoystickButton(driverStick, XboxController.Button.kX.value).whenPressed(printX);
+
             //Rear large ring light
             Command controlRearLargeRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_LARGE);
             new JoystickButton(driverStick, XboxController.Button.kY.value).whenPressed(controlRearLargeRinglight);
             
+        
             //Read a trajectory
             // Command readTrajectory = new ReadPath( Robot.trajectorySlalom, "Slalom path");
             // new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(readTrajectory);
 
             //Turn a specific angle
-            moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 2.0);
+            moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 0.5);
             new JoystickButton(driverStick, XboxController.Button.kA.value).whenHeld(moveToOuterPort, true);
 
-            Command alignment = new DrivetrainAlignment( 0 );
-            new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(alignment);
-
-
+            Command alignment = new DrivetrainAlignment( -78.0 );
+            new JoystickButton(driverStick, XboxController.Button.kB.value).whenHeld(alignment);
         }
         
         if (Config.ARM_TALON != -1) {
