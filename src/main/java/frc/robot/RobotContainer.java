@@ -170,8 +170,7 @@ public class RobotContainer {
             //Rear large ring light
             Command controlRearLargeRinglight = new ControlRingLight(Config.RELAY_RINGLIGHT_REAR_LARGE);
             new JoystickButton(driverStick, XboxController.Button.kY.value).whenPressed(controlRearLargeRinglight);
-            
-        
+                    
             //Read a trajectory
             // Command readTrajectory = new ReadPath( Robot.trajectorySlalom, "Slalom path");
             // new JoystickButton(driverStick, XboxController.Button.kB.value).whenPressed(readTrajectory);
@@ -180,7 +179,7 @@ public class RobotContainer {
             moveToOuterPort = new TurnToOuterPortCommand(true, 3.0, 0.5);
             new JoystickButton(driverStick, XboxController.Button.kA.value).whenHeld(moveToOuterPort, true);
 
-            Command alignment = new DrivetrainAlignment( -78.0 );
+            Command alignment = new DrivetrainAlignment( 0 );
             new JoystickButton(driverStick, XboxController.Button.kB.value).whenHeld(alignment);
         }
         

@@ -43,6 +43,7 @@ public class DriveBase2020 extends DriveBase {
     private Logger logger = Logger.getLogger("DriveBase2020");
 
     // USB Logger
+    private boolean bUsbLogger = false;
     private SimpleCsvLogger usbLogger;
     private String loggingDataIdentifier = "DriveBase2020";
 
@@ -110,7 +111,14 @@ public class DriveBase2020 extends DriveBase {
         leftVelocityMetersPerSecond = table.getEntry("leftVelocityMetersPerSecond");
         rightVelocityMetersPerSecond = table.getEntry("rightVelocityMetersPerSecond");
     
-        usbLogger = new SimpleCsvLogger();
+        if ( bUsbLogger == true )
+        {
+          usbLogger = new SimpleCsvLogger();
+        }
+        else
+        {
+          usbLogger = null;
+        }
     }    
 
     @Override
@@ -194,7 +202,8 @@ public class DriveBase2020 extends DriveBase {
         talonConfig.slot2.allowableClosedloopError = Config.ALIGNMENT_ALLOWABLE_PID_ERROR;
         //Motion Magic Closed-Loop Configs
         talonConfig.motionAcceleration = metersToTalonPosistion(0.6); //6m/s2
-        talonConfig.motionCruiseVelocity = metersToTalonPosistion(0.3); //3 metter/sec
+        talonConfig.motionCruiseVelocity = metersToTalonPosistion(0.2); //2 metter/sec
+        talonConfig.motionCurveStrength = 3;
         
         
         
@@ -574,32 +583,41 @@ public class DriveBase2020 extends DriveBase {
      */
     @Override
     public void startLogging() {
+        if ( usbLogger != null )
+        {
         // See Spreadsheet link at top
-        usbLogger.init(loggingDataIdentifier, 
-                new String[] { "LPos",
-                               "RPos",
-                               "currentX",
-                               "currentY",
-                               "currentAngle",
-                               "LVel",
-                               "RVel"},
-                new String[] { "m", 
-                               "m",
-                               "m",
-                               "m",
-                               "deg",
-                               "m/s",
-                               "m/s"});
+            usbLogger.init(loggingDataIdentifier, 
+                    new String[] { "LPos",
+                                "RPos",
+                                "currentX",
+                                "currentY",
+                                "currentAngle",
+                                "LVel",
+                                "RVel"},
+                    new String[] { "m", 
+                                "m",
+                                "m",
+                                "m",
+                                "deg",
+                                "m/s",
+                                "m/s"});
         }
+    }
 
 
     public void logData(double... data) {
-        usbLogger.writeData(data);
+        if ( usbLogger != null )
+        {
+            usbLogger.writeData(data);
+        }
     }
 
     @Override
     public void stopLogging() {
-        usbLogger.close();
+        if ( usbLogger != null )
+        {
+            usbLogger.close();
+        }
     }
 }
 

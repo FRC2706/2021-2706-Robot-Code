@@ -307,10 +307,10 @@ public class Config {
     public static double RAMSETE_VOLTAGE_COMPENSATION = 12;
 
     public static int DRIVETRAIN_SLOTID_ALIGNMENT = 2;
-    public static double ALIGNMENT_KF = 0.38;
-    public static double ALIGNMENT_KP = 0.0434; 
+    public static double ALIGNMENT_KF = 0.42;//0.38;
+    public static double ALIGNMENT_KP = 0.0434;//0.05;//0.0434; 
     public static double ALIGNMENT_KI = 0;
-    public static double ALIGNMENT_KD = 0; //maybe set to some value
+    public static double ALIGNMENT_KD = 0.03; //maybe set to some value
     public static double ALIGNMENT_ALLOWABLE_PID_ERROR = 0; // <- never stop the P loop from running
 
     public static boolean hasSelectorSwitches = robotSpecific(true, false, false, false);

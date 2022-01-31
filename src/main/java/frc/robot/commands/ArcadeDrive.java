@@ -35,6 +35,7 @@ public class ArcadeDrive extends CommandBase {
   private NetworkTableEntry forwardValue, rotationValue;
 
   // USB Logger
+  private boolean bUsbLogger = false;
   private SimpleCsvLogger usbLogger;
   private String loggingDataIdentifier = "ArcadeDrive";
 /**
@@ -55,7 +56,14 @@ public class ArcadeDrive extends CommandBase {
     this.driveBase = DriveBaseHolder.getInstance();
     addRequirements(this.driveBase);
    
-    usbLogger = new SimpleCsvLogger();
+    if ( bUsbLogger == true )
+    {
+      usbLogger = new SimpleCsvLogger();
+    }
+    else
+    {
+      usbLogger = null;
+    }
   }
   
   // Called when the command is initially scheduled.
@@ -70,7 +78,10 @@ public class ArcadeDrive extends CommandBase {
     rotationValue = table.getEntry("rotationValue");
     
     this.driveBase.startLogging();
-    startLogging();
+    if ( bUsbLogger == true )
+    {
+      startLogging();
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -83,7 +94,10 @@ public class ArcadeDrive extends CommandBase {
     forwardValue.setValue(forwardVal.get());
     rotationValue.setValue(rotateVal.get());
 
-    logData(forwardVal.get(), rotateVal.get());
+    if( bUsbLogger == true)
+    {
+      logData(forwardVal.get(), rotateVal.get());
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -93,7 +107,10 @@ public class ArcadeDrive extends CommandBase {
     this.driveBase.setDriveMode(DriveBase.DriveMode.Disabled);
 
     this.driveBase.stopLogging();
-    stopLogging();
+    if( bUsbLogger == true)
+    {
+      stopLogging();
+    }
   }
 
   /**

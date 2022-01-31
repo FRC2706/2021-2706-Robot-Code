@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.DriveBaseHolder;
 import frc.robot.config.Config;
+import frc.robot.commands.ramseteAuto.SimpleCsvLogger;
 
 public class DrivetrainAlignment extends CommandBase {
   /** Creates a new DrivetrainAlignment. */
@@ -28,11 +29,16 @@ public class DrivetrainAlignment extends CommandBase {
   
   //A timer to ensure the command doesn't get stuck and the robot cannot drive
   private Timer m_timer;
-  double m_timeout;
+  private double m_timeout;
 
   private boolean bDone;
   private boolean bTimeouted;
   private final double m_errMeters = 0.01;// 1cm
+
+  // USB Logger
+  private boolean bUsbLogger = false;
+  private SimpleCsvLogger usbLogger;
+  private String loggingDataIdentifier = "DrivetrainAlignment";
 
   public DrivetrainAlignment(double deltaDegree) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -42,9 +48,23 @@ public class DrivetrainAlignment extends CommandBase {
     addRequirements(m_drivebase);
 
     m_timer = new Timer();
-    m_timeout = 1.0;//0.5;//0.25;        //seconds //@todo: from config
+    m_timeout = 2.0;//1.0;//0.5;//0.25;        //seconds //@todo: from config
     
     System.out.println("DrivertrainAlignemnt construct");
+
+    if ( bUsbLogger == true )
+    {
+      usbLogger = new SimpleCsvLogger();
+    }
+    else
+    {
+      usbLogger = null;
+    }
+
+    if ( bUsbLogger == true )
+    {
+      startLogging();
+    }
   }
 
   // Called when the command is initially scheduled.
@@ -53,8 +73,8 @@ public class DrivetrainAlignment extends CommandBase {
     covertDegreeToPositionMeter();
 
     //Note: always counter-clockwise rotation. Keep this in mind when calcualte target angle
-    m_targetLeftPositionMeter  = m_drivebase.getLeftPosition() + m_targetDeltaPositionMeter;
-    m_targetRightPositionMeter = m_drivebase.getRightPosition() - m_targetDeltaPositionMeter;
+    m_targetLeftPositionMeter  = m_drivebase.getLeftPosition() - m_targetDeltaPositionMeter;
+    m_targetRightPositionMeter = m_drivebase.getRightPosition() + m_targetDeltaPositionMeter;
 
     m_initDegree = m_drivebase.getOdometryHeading().getDegrees();
     m_targetDegree = m_initDegree + m_deltaDegree;
@@ -69,7 +89,9 @@ public class DrivetrainAlignment extends CommandBase {
     bDone = false;
     bTimeouted = false;
 
-    System.out.println("DrivertrainAlignemnt initialize " + m_targetLeftPositionMeter  +" "+ m_targetRightPositionMeter );
+//    System.out.println("DrivertrainAlignemnt initialize " + m_targetLeftPositionMeter  +" "+ m_targetRightPositionMeter );
+ 
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -87,6 +109,8 @@ public class DrivetrainAlignment extends CommandBase {
          && ( Math.abs(m_currRightPosMeter - m_targetRightPositionMeter) < m_errMeters ))
     {
       bDone = true;
+      // System.out.println("left error abs: " + Math.abs(m_currLeftPosMeter - m_targetLeftPositionMeter));
+      // System.out.println("right error abs: "+ Math.abs(m_currRightPosMeter - m_targetRightPositionMeter));
     }
 
   } 
@@ -100,16 +124,51 @@ public class DrivetrainAlignment extends CommandBase {
     //logging the final current heading and error angle
     double finalDegree = m_drivebase.getOdometryHeading().getDegrees();
     double errDegree = finalDegree - m_targetDegree;
-    System.out.println("current odometry angle (degrees): "+ finalDegree);
-    System.out.println("target odometry angle (degrees): " + m_targetDegree);
+    // System.out.println("current odometry angle (degrees): "+ finalDegree);
+    // System.out.println("target odometry angle (degrees): " + m_targetDegree);
     System.out.println("error angle (degrees): "+ errDegree);
-    m_timer.stop();
-
+    double errLeftPos = -m_targetLeftPositionMeter + m_currLeftPosMeter;
+    double errRightPos = m_targetRightPositionMeter - m_currRightPosMeter;
+    //note: error > 0 means underrun
+    System.out.println("pos errs: " + errLeftPos + " " + errRightPos);
+    System.out.println("time: " + m_timer.get());
     //@todo: after target position is reached, stop the cmd.
     //@max velocity, trapezoid control
-    System.out.println("curr left pos: "+ m_currLeftPosMeter+" target pos: "+ m_targetLeftPositionMeter);
-    System.out.println("curr right pos: "+ m_currRightPosMeter+" target pos: "+ m_targetRightPositionMeter);
-    System.out.println("timeout: " + bTimeouted);
+    //System.out.println("curr left pos: "+ m_currLeftPosMeter+" target pos: "+ m_targetLeftPositionMeter);
+    // System.out.println("curr right pos: "+ m_currRightPosMeter+" target pos: "+ m_targetRightPositionMeter);
+    // System.out.println("timeout: " + bTimeouted + " current time " + m_timer.get());
+    // System.out.println("bDone: " + bDone);
+
+    
+    double timeouted = 0.;
+    double done = 0.;
+    if( bTimeouted == true)
+      timeouted = 1.0;
+
+    if ( bDone == true )
+       done = 1.0;
+
+
+    if( bUsbLogger == true)
+    {
+      logData(finalDegree,
+              m_targetDegree,
+              errDegree,
+              m_currLeftPosMeter,
+              m_targetLeftPositionMeter,
+              m_currRightPosMeter,
+              m_targetRightPositionMeter,
+              m_timer.get(),
+              timeouted,
+              done);
+    }
+
+    // if( bUsbLogger == true)
+    // {
+    //   stopLogging();
+    // }
+
+    m_timer.stop();
   }
 
   // Returns true when the command should end.
@@ -121,7 +180,7 @@ public class DrivetrainAlignment extends CommandBase {
       bTimeouted = true;
     }
 
-    if( m_timer.get() > m_timeout || bDone == true)
+    if( bTimeouted == true || bDone == true)
       return true;
     else
       return false;
@@ -130,7 +189,43 @@ public class DrivetrainAlignment extends CommandBase {
   public void covertDegreeToPositionMeter()
   {
     //@todo: convert m_deltaDegree to m_targetPositionMeter based on radius.
-    m_targetDeltaPositionMeter = 0.246;  //mapped to 90 degrees
+    m_targetDeltaPositionMeter = 0.5;//0.246;//0.45;//0.246;//0.246;  //mapped to 90 degrees
+    
   }
 
+    /**
+     * All Methods used for USB logging startLogging() logData(data) stopLogging()
+     */
+  public void startLogging() {
+      // See Spreadsheet link at top
+      usbLogger.init(loggingDataIdentifier, 
+              new String[] { "currAngle",
+                             "targetAngle",
+                             "errAngle",
+                             "currLeftPos",
+                             "targetLeftPos",
+                             "currRightPos",
+                             "targetRightPos",
+                             "time",
+                             "bDOne",
+                             "bTimeouted"},
+              new String[]{"deg",
+                           "deg",
+                           "deg",
+                           "m",
+                           "m",
+                           "m",
+                           "m",
+                           "sec",
+                           "bool",
+                           "bool"});
+  }
+
+  public void logData(double... data) {
+        usbLogger.writeData(data);
+  }
+
+  public void stopLogging() {
+        usbLogger.close();
+  }
 }
