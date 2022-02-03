@@ -5,12 +5,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
+import org.opencv.core.Mat;
+
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.DriveBaseHolder;
 import frc.robot.config.Config;
 import frc.robot.commands.ramseteAuto.SimpleCsvLogger;
+
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+
 
 public class DrivetrainAlignment extends CommandBase {
   /** Creates a new DrivetrainAlignment. */
@@ -23,6 +29,12 @@ public class DrivetrainAlignment extends CommandBase {
   double m_targetRightPositionMeter;
   double m_currLeftPosMeter;
   double m_currRightPosMeter;
+
+  double m_hubX = 1.8;
+  double m_hubY = 2.5;
+  double m_theta;
+  double m_distance;
+  double m_deltaTheta;
 
   // Get the drivebase and pigeon
   private final DriveBase m_drivebase;
@@ -70,6 +82,7 @@ public class DrivetrainAlignment extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    calcDeltaDegree();
     covertDegreeToPositionMeter();
 
     //Note: always counter-clockwise rotation. Keep this in mind when calcualte target angle
@@ -132,6 +145,8 @@ public class DrivetrainAlignment extends CommandBase {
     //note: error > 0 means underrun
     System.out.println("pos errs: " + errLeftPos + " " + errRightPos);
     System.out.println("time: " + m_timer.get());
+    System.out.println("theta: "+m_theta+" distance: "+m_distance);
+    System.out.println("m_DeltaTheta: "+m_deltaTheta);
     //@todo: after target position is reached, stop the cmd.
     //@max velocity, trapezoid control
     //System.out.println("curr left pos: "+ m_currLeftPosMeter+" target pos: "+ m_targetLeftPositionMeter);
@@ -189,8 +204,39 @@ public class DrivetrainAlignment extends CommandBase {
   public void covertDegreeToPositionMeter()
   {
     //@todo: convert m_deltaDegree to m_targetPositionMeter based on radius.
-    m_targetDeltaPositionMeter = 0.5;//0.246;//0.45;//0.246;//0.246;  //mapped to 90 degrees
-    
+    m_targetDeltaPositionMeter = m_distance;//0.246;//0.45;//0.246;//0.246;  //mapped to 90 degrees
+  }
+
+  public void calcDeltaDegree()
+  {
+    //get current coordinate
+    Pose2d currPose = m_drivebase.getPose();
+    double x = currPose.getX();// m_drivebase.getLeftPosition();
+    double y = currPose.getY();
+
+    double thetaPrime = Math.atan((x-m_hubX)/(m_hubY-y));
+
+    m_theta = (180/3.14)*thetaPrime+90;
+
+    m_deltaTheta = m_theta-currPose.getRotation().getDegrees();
+
+    if(Math.abs(m_deltaTheta) < 90){
+      m_distance = sign(m_deltaTheta) * (0.00246*Math.abs(m_deltaTheta)+0.0526);
+    }
+    else{
+      m_distance = sign(m_deltaTheta)*(-0.161 + 0.00624*Math.abs(m_deltaTheta) -0.0000147*m_deltaTheta*m_deltaTheta);
+    }
+  }
+
+  public double sign(double input)
+  {
+    if(input > 0)
+    {
+      return 1.00;
+    }
+    else{
+      return -1.00;
+    }
   }
 
     /**
